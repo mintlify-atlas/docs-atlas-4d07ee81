@@ -1,0 +1,487 @@
+---
+title: Moderation Commands
+description: Commands for managing members and maintaining server safety
+icon: shield
+---
+
+## Overview
+
+Fire's moderation commands help you manage your server members and enforce rules. All moderation commands are slash-only and require appropriate permissions.
+
+<Warning>
+Most moderation actions are logged and cannot be easily undone. Always verify the target user and reason before executing.
+</Warning>
+
+## Member Moderation
+
+### Ban
+
+Ban a member or user from the server.
+
+**Command:** `/ban`
+
+<ParamField path="user" type="User/Member" required>
+  The member or user to ban
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for the ban (shown in audit log)
+</ParamField>
+
+<ParamField path="time" type="Time Duration">
+  Temporary ban duration (e.g., "2d", "1w"). Leave empty for permanent ban.
+  
+  Minimum: 30 minutes
+</ParamField>
+
+<ParamField path="deleteMessageSeconds" type="Number">
+  How many seconds of messages to delete (0-604800)
+  
+  Options:
+  - None (0)
+  - Previous hour (3600)
+  - Previous 6 hours (21600)
+  - Previous 12 hours (43200)
+  - Previous day (86400)
+  - Previous 3 days (259200)
+  - Previous week (604800)
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Ban Members
+
+**Examples:**
+```
+/ban user:@Spammer reason:Advertising delete:604800
+/ban user:@Toxic time:7d reason:Harassment
+```
+
+<Note>
+You cannot ban moderators unless you are the server owner.
+</Note>
+
+---
+
+### Unban
+
+Remove a ban from a user.
+
+**Command:** `/unban`
+
+<ParamField path="user" type="User" required>
+  The banned user to unban
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for unbanning
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Ban Members
+
+---
+
+### Kick
+
+Remove a member from the server (they can rejoin).
+
+**Command:** `/kick`
+
+<ParamField path="user" type="Member" required>
+  The member to kick
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for the kick
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Kick Members
+
+**Example:**
+```
+/kick user:@Troublemaker reason:Repeated rule violations
+```
+
+---
+
+### Mute
+
+Timeout a member, preventing them from sending messages.
+
+**Command:** `/mute`
+
+<ParamField path="user" type="Member" required>
+  The member to mute
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for the mute
+</ParamField>
+
+<ParamField path="time" type="Time Duration">
+  Duration of the mute (e.g., "1h", "30m"). Maximum 28 days per Discord's limits.
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Moderate Members, Manage Channels, Manage Roles
+
+**Example:**
+```
+/mute user:@Spammer time:2h reason:Excessive spam
+```
+
+<Note>
+Cannot mute moderators or bots unless you are the server owner.
+</Note>
+
+---
+
+### Unmute
+
+Remove a timeout from a member.
+
+**Command:** `/unmute`
+
+<ParamField path="user" type="Member" required>
+  The muted member to unmute
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for unmuting
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Moderate Members
+
+---
+
+### Warn
+
+Issue a warning to a member.
+
+**Command:** `/warn`
+
+<ParamField path="user" type="Member" required>
+  The member to warn
+</ParamField>
+
+<ParamField path="reason" type="String" required>
+  Reason for the warning
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+
+**Example:**
+```
+/warn user:@NewUser reason:Please read the rules before posting
+```
+
+---
+
+## Message Management
+
+### Purge
+
+Bulk delete messages in a channel.
+
+**Command:** `/purge`
+
+<ParamField path="amount" type="Number" required>
+  Number of messages to delete (2-100)
+</ParamField>
+
+**Optional Filters:**
+
+<ParamField path="user" type="User">
+  Only delete messages from this user
+</ParamField>
+
+<ParamField path="match" type="String">
+  Only delete messages containing this text
+</ParamField>
+
+<ParamField path="nomatch" type="String">
+  Only delete messages NOT containing this text
+</ParamField>
+
+<ParamField path="startswith" type="String">
+  Only delete messages starting with this text
+</ParamField>
+
+<ParamField path="endswith" type="String">
+  Only delete messages ending with this text
+</ParamField>
+
+<ParamField path="attachments" type="Boolean">
+  Only delete messages with attachments
+</ParamField>
+
+<ParamField path="bot" type="Boolean">
+  Only delete messages from bots
+</ParamField>
+
+<ParamField path="includeEmbeds" type="Boolean">
+  Include embed content in text matching
+</ParamField>
+
+<ParamField path="inverse" type="Boolean">
+  Invert the filter criteria
+</ParamField>
+
+**Required Permissions:**
+- User: Manage Messages
+- Bot: View Channel, Manage Messages
+
+**Examples:**
+```
+/purge amount:50
+/purge amount:100 user:@Spammer
+/purge amount:20 bot:true
+```
+
+<Warning>
+Messages older than 14 days cannot be bulk deleted due to Discord's limitations.
+</Warning>
+
+---
+
+### Slowmode
+
+Set channel slowmode rate limit.
+
+**Command:** `/slowmode`
+
+<ParamField path="delay" type="Number">
+  Slowmode delay in seconds (0-21600). Use 0 to disable.
+</ParamField>
+
+<ParamField path="channel" type="Channel">
+  Target channel or category. Defaults to current channel.
+</ParamField>
+
+<ParamField path="global" type="Boolean">
+  Apply to all channels in the server
+</ParamField>
+
+**Required Permissions:**
+- User: Manage Channels
+- Bot: Manage Channels
+
+**Examples:**
+```
+/slowmode delay:5
+/slowmode delay:30 channel:#general
+/slowmode delay:0
+```
+
+---
+
+## Moderation Utilities
+
+### Moderators
+
+Manage the server's moderator list.
+
+**Commands:**
+- `/moderators` - View current moderators
+- `/moderators-add` - Add a moderator role
+- `/moderators-remove` - Remove a moderator role
+- `/moderators-list` - List all moderator roles
+
+---
+
+### Modlogs
+
+View moderation logs and statistics.
+
+**Commands:**
+- `/modlogs` - View moderation actions
+- `/modlogs-view` - View specific modlog entry
+- `/modlogs-stats` - View moderation statistics
+- `/modlog-mod-stats` - View per-moderator statistics
+
+---
+
+### Warnings
+
+Manage member warnings.
+
+**Commands:**
+- `/warnings-view` - View warnings for a member
+- `/warnings-clear` - Clear warnings from a member
+
+---
+
+### Note
+
+Add internal notes about a member (not visible to the member).
+
+**Command:** `/note`
+
+<ParamField path="user" type="Member" required>
+  The member to add a note about
+</ParamField>
+
+<ParamField path="note" type="String" required>
+  The note content
+</ParamField>
+
+---
+
+### Reason
+
+Update the reason for a moderation action.
+
+**Command:** `/reason`
+
+<ParamField path="case" type="Number" required>
+  The case ID to update
+</ParamField>
+
+<ParamField path="reason" type="String" required>
+  The new reason
+</ParamField>
+
+---
+
+## Auto-Moderation
+
+### Muterole
+
+Configure the mute role for the server.
+
+**Command:** `/muterole`
+
+<ParamField path="role" type="Role">
+  The role to use for mutes
+</ParamField>
+
+---
+
+### Block/Unblock
+
+Block or unblock a member from specific channels.
+
+**Commands:**
+- `/block` - Block a member from the current channel
+- `/unblock` - Unblock a member from the current channel
+
+---
+
+### Derank
+
+Remove all roles from a member.
+
+**Command:** `/derank`
+
+<ParamField path="user" type="Member" required>
+  The member to derank
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Reason for deranking
+</ParamField>
+
+**Required Permissions:**
+- User: Moderator role
+- Bot: Manage Roles
+
+---
+
+## Auto-Configuration
+
+### Autodecancer
+
+Automatically dehoist members with special characters at the start of their name.
+
+**Command:** `/autodecancer`
+
+---
+
+### Autodehoist
+
+Automatically remove hoisting characters from nicknames.
+
+**Command:** `/autodehoist`
+
+---
+
+### Badname
+
+Set a default nickname for members with inappropriate names.
+
+**Command:** `/badname`
+
+<ParamField path="name" type="String">
+  The default nickname to assign
+</ParamField>
+
+---
+
+### Autorole
+
+Configure roles to automatically assign to new members.
+
+**Command:** `/autorole`
+
+---
+
+## Advanced
+
+### Lockdown
+
+Lock down the entire server or specific channels.
+
+**Commands:**
+- `/lockdown start` - Start a server lockdown
+- `/lockdown end` - End the lockdown
+- `/lockdown exclude` - Exclude a category from lockdown
+
+<ParamField path="reason" type="String">
+  Reason for the lockdown
+</ParamField>
+
+**Required Permissions:**
+- User: Manage Channels
+- Bot: Manage Channels
+
+<Warning>
+Lockdown prevents all members from sending messages in affected channels. Use with caution.
+</Warning>
+
+---
+
+### Appeals
+
+Manage ban appeals system.
+
+**Command:** `/appeals`
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Provide Reasons">
+    Include clear, professional reasons for all moderation actions. These appear in audit logs and can be viewed by other moderators.
+  </Accordion>
+  
+  <Accordion title="Use Temporary Bans">
+    Consider using temporary bans for first-time offenders to give them a chance to improve.
+  </Accordion>
+  
+  <Accordion title="Document Warnings">
+    Use the warn command to build a history before taking stronger action.
+  </Accordion>
+  
+  <Accordion title="Review Modlogs">
+    Regularly review moderation statistics to ensure consistency across your mod team.
+  </Accordion>
+</AccordionGroup>

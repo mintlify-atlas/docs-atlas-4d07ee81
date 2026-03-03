@@ -1,0 +1,812 @@
+---
+title: Creating Modules
+description: Learn how to create modules for Fire Discord Bot
+---
+
+## Module Basics
+
+Modules are self-contained components that handle background tasks, event processing, or provide services to other parts of the bot. Unlike commands, modules don't directly respond to user input.
+
+## Module Structure
+
+### Module Base Class
+
+All modules extend the `Module` class from `lib/util/module.ts`:
+
+```typescript lib/util/module.ts:4-19
+export class Module extends AkairoModule {
+  declare client: Fire;
+  
+  constructor(id: string) {
+    super(id, {});
+  }
+
+  get console() {
+    return this.client.getLogger(`Module:${this.constructor.name}`);
+  }
+
+  async init(): Promise<any> {}
+
+  async unload(): Promise<any> {}
+}
+```
+
+### Basic Module Template
+
+Here's a minimal module:
+
+```typescript src/modules/example.ts
+import { Module } from "@fire/lib/util/module";
+
+export default class Example extends Module {
+  constructor() {
+    super("example");
+  }
+
+  async init() {
+    // Module initialization
+    this.console.log("Example module loaded");
+  }
+
+  async unload() {
+    // Cleanup when module is removed
+    this.console.log("Example module unloaded");
+  }
+}
+```
+
+## Real-World Examples
+
+### Stats Collection Module
+
+The AetherStats module collects and sends statistics periodically:
+
+```typescript src/modules/aetherstats.ts
+import { Module } from "@fire/lib/util/module";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+
+export default class AetherStats extends Module {
+  events: Record<string, Record<string, number>> = {};
+  statsTask: NodeJS.Timeout;
+  eventsTask: NodeJS.Timeout;
+
+  constructor() {
+    super("aetherstats");
+  }
+
+  async init() {
+    // Wait for bot to be ready
+    await this.client.waitUntilRawReady();
+
+    if (!this.client.manager.ws) return this.remove();
+    
+    // Clear existing intervals
+    if (this.statsTask) clearInterval(this.statsTask);
+    
+    // Send stats immediately
+    await this.sendStats();
+    
+    // Set up periodic tasks
+    this.statsTask = setInterval(() => {
+      this.sendStats();
+    }, 5000);
+    
+    this.eventsTask = setInterval(() => {
+      this.writeEvents();
+    }, 60000);
+  }
+
+  async unload() {
+    if (this.statsTask) clearInterval(this.statsTask);
+    if (this.eventsTask) clearInterval(this.eventsTask);
+  }
+
+  async sendStats() {
+    await this.client.waitUntilReady();
+    const stats = await this.client.util.getClusterStats();
+    if (!this.client.manager.ws?.open) return;
+    this.client.manager.ws.send(
+      MessageUtil.encode(new Message(EventType.SEND_STATS, stats))
+    );
+  }
+
+  writeEvents() {
+    this.client.manager.writeToInflux([
+      ...Object.entries(this.events)
+        .map(([shard, events]) => {
+          return Object.entries(events).map(([eventType, count]) => ({
+            measurement: "gateway_events",
+            fields: { count },
+            tags: { eventType, shard },
+          }));
+        })
+        .flat(),
+      ...Object.entries(this.events).map(([shard, events]) => ({
+        measurement: "gateway_events_total",
+        fields: { count: Object.values(events).reduce((a, b) => a + b) },
+        tags: { shard },
+      })),
+    ]);
+  }
+}
+```
+
+### Content Filtering Module
+
+The Filters module handles message filtering and moderation:
+
+```typescript src/modules/filters.ts
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Module } from "@fire/lib/util/module";
+import { constants, shortURLs } from "@fire/lib/util/constants";
+
+const { regexes } = constants;
+
+export default class Filters extends Module {
+  debug: string[];
+  regexes: { [key: string]: RegExp[] };
+  shortURLRegex: RegExp;
+  filters: {
+    [key: string]: ((message: FireMessage, extra: string) => Promise<void>)[];
+  };
+
+  constructor() {
+    super("filters");
+    this.debug = [];
+    
+    // Compile regex patterns
+    this.shortURLRegex = new RegExp(
+      `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\\.{1,50}`,
+      "gim"
+    );
+    
+    // Register filter regexes
+    this.regexes = {
+      discord: regexes.invites,
+      twitch: Object.values(regexes.twitch),
+      youtube: Object.values(regexes.youtube),
+      paypal: [regexes.paypal],
+      twitter: [regexes.twitter],
+      shorteners: [this.shortURLRegex],
+    };
+    
+    // Register filter handlers
+    this.filters = {
+      discord: [this.handleInvite, this.handleExtInvite],
+      paypal: [this.nobodyWantsToSendYouMoneyOnPayPal],
+      youtube: [this.handleYouTubeVideo, this.handleYouTubeChannel],
+      twitch: [this.handleTwitch],
+      twitter: [this.handleTwitter],
+      shorteners: [this.handleShort],
+    };
+  }
+
+  shouldRun(
+    message?: FireMessage | ApplicationCommandMessage,
+    userOrMember?: FireMember | FireUser
+  ) {
+    let user: FireUser, member: FireMember;
+    if (userOrMember && userOrMember instanceof FireMember) {
+      user = userOrMember.user;
+      member = userOrMember;
+    } else if (userOrMember && userOrMember instanceof FireUser)
+      user = userOrMember;
+      
+    const guild = message?.guild ?? member?.guild;
+    if ((message && message.author.bot) || (user && user.bot)) return false;
+    if (!guild && !member) return false;
+    if (!guild.settings.get<LinkFilters[]>("mod.linkfilter", []).length)
+      return false;
+    if (message?.member?.isModerator() || member?.isModerator()) return false;
+    
+    // Check exclusions
+    const excluded = guild?.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
+    if (!excluded.length) return true;
+    
+    const roleIds = message
+      ? message.member?.roles.cache.map((role) => role.id)
+      : member?.roles.cache.map((role) => role.id);
+      
+    if (excluded.includes(`user:${user?.id}`)) return false;
+    else if (roleIds.some((id) => excluded.includes(`role:${id}`)))
+      return false;
+      
+    return true;
+  }
+
+  async runAll(
+    message: FireMessage,
+    extra: string = "",
+    exclude: string[] = []
+  ) {
+    if (!this.shouldRun(message)) return;
+    
+    const enabled = message.guild.settings.get<LinkFilters[]>(
+      "mod.linkfilter",
+      []
+    );
+    
+    // Run all enabled filters
+    for (const name of Object.keys(this.filters))
+      if (!exclude.includes(name) && enabled.includes(name as LinkFilters)) {
+        this.filters[name].map(
+          async (handler) =>
+            await this.safelyRunPromise<typeof handler>(
+              handler.bind(this),
+              message,
+              extra
+            )
+        );
+      }
+  }
+
+  async handleInvite(message: FireMessage, extra: string = "") {
+    // Discord invite filtering logic
+    // (simplified for example)
+  }
+
+  async handleYouTubeVideo(message: FireMessage, extra: string = "") {
+    // YouTube video filtering logic
+  }
+
+  // ... more filter handlers
+
+  private async safelyRunPromise<T extends (...args: any[]) => Promise<any>>(
+    promise: T,
+    ...args: Parameters<T>
+  ) {
+    try {
+      return await promise(...args);
+    } catch {}
+  }
+}
+```
+
+## Module Patterns
+
+### Periodic Tasks
+
+Modules often need to run tasks periodically:
+
+```typescript
+export default class PeriodicTask extends Module {
+  task: NodeJS.Timeout;
+
+  constructor() {
+    super("periodic-task");
+  }
+
+  async init() {
+    // Wait for bot ready
+    await this.client.waitUntilReady();
+
+    // Run task immediately
+    await this.runTask();
+
+    // Schedule periodic execution
+    this.task = setInterval(() => {
+      this.runTask();
+    }, 60000); // Every minute
+  }
+
+  async unload() {
+    // Clean up interval
+    if (this.task) clearInterval(this.task);
+  }
+
+  async runTask() {
+    try {
+      // Task logic
+      this.console.log("Task executed");
+    } catch (error) {
+      this.console.error("Task failed:", error);
+    }
+  }
+}
+```
+
+### Event Processing
+
+Modules can process Discord events:
+
+```typescript
+export default class EventProcessor extends Module {
+  constructor() {
+    super("event-processor");
+  }
+
+  async init() {
+    // Listen to Discord events
+    this.client.on("messageCreate", (message) => {
+      this.handleMessage(message);
+    });
+
+    this.client.on("guildMemberAdd", (member) => {
+      this.handleMemberJoin(member);
+    });
+  }
+
+  async handleMessage(message: FireMessage) {
+    if (message.author.bot) return;
+    // Process message
+  }
+
+  async handleMemberJoin(member: FireMember) {
+    // Process new member
+  }
+
+  async unload() {
+    // Remove event listeners
+    this.client.removeAllListeners("messageCreate");
+    this.client.removeAllListeners("guildMemberAdd");
+  }
+}
+```
+
+### Service Provider
+
+Modules can provide services to other parts of the bot:
+
+```typescript
+export default class CacheService extends Module {
+  private cache: Map<string, any>;
+
+  constructor() {
+    super("cache-service");
+    this.cache = new Map();
+  }
+
+  async init() {
+    // Initialize cache
+    this.console.log("Cache service initialized");
+  }
+
+  // Public API methods
+  get(key: string): any {
+    return this.cache.get(key);
+  }
+
+  set(key: string, value: any, ttl?: number): void {
+    this.cache.set(key, value);
+
+    if (ttl) {
+      setTimeout(() => {
+        this.cache.delete(key);
+      }, ttl);
+    }
+  }
+
+  delete(key: string): boolean {
+    return this.cache.delete(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  async unload() {
+    // Clear cache on unload
+    this.cache.clear();
+  }
+}
+```
+
+Access from other parts:
+
+```typescript
+const cacheService = this.client.getModule("cache-service") as CacheService;
+cacheService.set("mykey", "myvalue", 60000);
+```
+
+## Module Lifecycle
+
+### Loading Process
+
+<Steps>
+  <Step title="Module Discovery">
+    Modules are auto-loaded from `src/modules/` (lib/Fire.ts:426-435)
+  </Step>
+  
+  <Step title="Constructor">
+    Module constructor is called with unique ID
+  </Step>
+  
+  <Step title="Registration">
+    Module is registered with ModuleHandler
+  </Step>
+  
+  <Step title="Initialization">
+    `init()` is called for setup (lib/Fire.ts:429-431)
+    
+    ```typescript lib/Fire.ts:429-431
+    this.modules.on("load", async (module: Module, isReload: boolean) => {
+      await module?.init();
+    });
+    ```
+  </Step>
+</Steps>
+
+### Unloading Process
+
+<Steps>
+  <Step title="Unload Triggered">
+    Module unload is requested
+  </Step>
+  
+  <Step title="Cleanup">
+    `unload()` is called (lib/Fire.ts:432-434)
+    
+    ```typescript lib/Fire.ts:432-434
+    this.modules.on("remove", async (module: Module) => {
+      await module?.unload();
+    });
+    ```
+  </Step>
+  
+  <Step title="Deregistration">
+    Module is removed from handler
+  </Step>
+</Steps>
+
+## Accessing Modules
+
+### From Commands
+
+```typescript
+async run(command: ApplicationCommandMessage) {
+  const filters = this.client.getModule("filters") as Filters;
+  const isFiltered = await filters.isFiltered(someUrl, command);
+}
+```
+
+### From Other Modules
+
+```typescript
+async init() {
+  const anotherModule = this.client.getModule("another-module");
+  // Use another module's functionality
+}
+```
+
+### From Listeners
+
+```typescript
+async exec(message: FireMessage) {
+  const filters = this.client.getModule("filters") as Filters;
+  await filters.runAll(message);
+}
+```
+
+## Best Practices
+
+### Initialization Order
+
+Wait for dependencies to be ready:
+
+```typescript
+async init() {
+  // Wait for bot ready
+  await this.client.waitUntilReady();
+  
+  // Or wait for raw ready (earlier)
+  await this.client.waitUntilRawReady();
+  
+  // Now safe to access client.guilds, etc.
+}
+```
+
+### Error Handling
+
+```typescript
+async init() {
+  try {
+    await this.setup();
+  } catch (error) {
+    this.console.error("Failed to initialize:", error);
+    // Optionally remove module
+    return this.remove();
+  }
+}
+
+private async safeOperation() {
+  try {
+    // Risky operation
+  } catch (error) {
+    this.console.error("Operation failed:", error);
+    // Don't crash the module
+  }
+}
+```
+
+### Resource Cleanup
+
+```typescript
+async unload() {
+  // Clear all intervals
+  if (this.interval) clearInterval(this.interval);
+  if (this.timeout) clearTimeout(this.timeout);
+  
+  // Remove event listeners
+  this.client.removeAllListeners("eventName");
+  
+  // Close connections
+  if (this.connection) await this.connection.close();
+  
+  // Clear caches
+  this.cache?.clear();
+  
+  this.console.log("Module cleaned up");
+}
+```
+
+### Logging
+
+Use the module's console for logging:
+
+```typescript
+this.console.log("Information message");
+this.console.warn("Warning message");
+this.console.error("Error message", error);
+```
+
+Logging appears as: `[Module:ModuleName] Message`
+
+### State Management
+
+```typescript
+export default class Stateful extends Module {
+  private state: Map<string, any>;
+  private savePath: string;
+
+  constructor() {
+    super("stateful");
+    this.state = new Map();
+    this.savePath = "./data/module-state.json";
+  }
+
+  async init() {
+    await this.loadState();
+  }
+
+  async unload() {
+    await this.saveState();
+  }
+
+  private async loadState() {
+    try {
+      const data = await fs.readFile(this.savePath, "utf8");
+      this.state = new Map(JSON.parse(data));
+    } catch (error) {
+      this.console.warn("Could not load state");
+    }
+  }
+
+  private async saveState() {
+    try {
+      const data = JSON.stringify([...this.state.entries()]);
+      await fs.writeFile(this.savePath, data);
+    } catch (error) {
+      this.console.error("Could not save state:", error);
+    }
+  }
+}
+```
+
+## Module vs Listener
+
+**Use a Module when:**
+- You need periodic background tasks
+- You're providing a service to other components
+- You have complex stateful logic
+- You need lifecycle management
+
+**Use a Listener when:**
+- You're responding to a specific Discord event
+- Logic is event-driven and stateless
+- You don't need periodic execution
+
+## Testing Modules
+
+<Steps>
+  <Step title="Create Test Module">
+    ```typescript src/modules/test.ts
+    export default class Test extends Module {
+      constructor() {
+        super("test");
+      }
+      
+      async init() {
+        this.console.log("Test module loaded!");
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Compile and Run">
+    ```bash
+    pnpm dev
+    ```
+  </Step>
+  
+  <Step title="Verify Loading">
+    Check console for "Test module loaded!" message
+  </Step>
+  
+  <Step title="Test Functionality">
+    Interact with module from commands or other modules
+  </Step>
+</Steps>
+
+## Common Pitfalls
+
+<Warning>
+**Don't forget to clear intervals/timeouts**
+
+Always clean up in `unload()` to prevent memory leaks:
+
+```typescript
+async unload() {
+  if (this.task) clearInterval(this.task);
+}
+```
+</Warning>
+
+<Warning>
+**Wait for client to be ready**
+
+Accessing `this.client.guilds` or other properties before ready will fail:
+
+```typescript
+async init() {
+  await this.client.waitUntilReady(); // Important!
+  const guilds = this.client.guilds.cache;
+}
+```
+</Warning>
+
+<Warning>
+**Handle errors gracefully**
+
+Don't let errors crash the entire module:
+
+```typescript
+private async riskyOperation() {
+  try {
+    // Operation
+  } catch (error) {
+    this.console.error("Operation failed:", error);
+    // Continue running
+  }
+}
+```
+</Warning>
+
+## Advanced Patterns
+
+### Module Dependencies
+
+```typescript
+export default class DependentModule extends Module {
+  private dependency: SomeModule;
+
+  async init() {
+    // Wait for dependency to load
+    this.dependency = this.client.getModule("some-module") as SomeModule;
+    
+    if (!this.dependency) {
+      this.console.error("Dependency not found");
+      return this.remove();
+    }
+    
+    // Use dependency
+  }
+}
+```
+
+### Rate Limiting
+
+```typescript
+export default class RateLimited extends Module {
+  private ratelimits: Map<string, number[]>;
+
+  constructor() {
+    super("ratelimited");
+    this.ratelimits = new Map();
+  }
+
+  isRateLimited(key: string, limit: number, window: number): boolean {
+    const now = Date.now();
+    const timestamps = this.ratelimits.get(key) ?? [];
+    
+    // Remove old timestamps
+    const recent = timestamps.filter((ts) => now - ts < window);
+    
+    if (recent.length >= limit) {
+      return true;
+    }
+    
+    recent.push(now);
+    this.ratelimits.set(key, recent);
+    return false;
+  }
+}
+```
+
+### Caching with TTL
+
+```typescript
+interface CacheEntry<T> {
+  value: T;
+  expires: number;
+}
+
+export default class TTLCache extends Module {
+  private cache: Map<string, CacheEntry<any>>;
+  private cleanupTask: NodeJS.Timeout;
+
+  constructor() {
+    super("ttl-cache");
+    this.cache = new Map();
+  }
+
+  async init() {
+    // Periodic cleanup
+    this.cleanupTask = setInterval(() => {
+      this.cleanup();
+    }, 60000);
+  }
+
+  set<T>(key: string, value: T, ttl: number): void {
+    this.cache.set(key, {
+      value,
+      expires: Date.now() + ttl,
+    });
+  }
+
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    
+    if (Date.now() > entry.expires) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return entry.value as T;
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      if (now > entry.expires) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  async unload() {
+    if (this.cleanupTask) clearInterval(this.cleanupTask);
+    this.cache.clear();
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Command Development" icon="code" href="/development/commands">
+    Create commands that use your modules
+  </Card>
+  
+  <Card title="Architecture" icon="diagram-project" href="/development/architecture">
+    Understand how modules fit in Fire's architecture
+  </Card>
+</CardGroup>

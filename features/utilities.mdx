@@ -1,0 +1,334 @@
+---
+title: Utility features
+description: Helpful utility commands to enhance your Discord server experience
+---
+
+Fire includes a variety of utility features to make server management easier and provide useful tools for your members. From reminders and embeds to Minecraft utilities and server information, these features help streamline your Discord experience.
+
+## Reminders
+
+Never forget important tasks or events with Fire's reminder system.
+
+<Tabs>
+  <Tab title="Create">
+    ### Create a reminder
+    
+    Set reminders for yourself that Fire will send you at the specified time.
+    
+    ```bash
+    /reminders create time:"2 hours" reminder:"Check the announcements"
+    ```
+    
+    **Time format examples:**
+    - `30m` or `30 minutes` - 30 minutes from now
+    - `2h` or `2 hours` - 2 hours from now
+    - `1d` or `1 day` - 1 day from now
+    - `3w` or `3 weeks` - 3 weeks from now
+    - Specific date/time formats are also supported
+    
+    <Note>
+    Reminders are sent via DM, so make sure you have DMs enabled from server members.
+    </Note>
+  </Tab>
+  
+  <Tab title="List">
+    ### View your reminders
+    
+    See all your active reminders.
+    
+    ```bash
+    /reminders list
+    ```
+    
+    This shows all your pending reminders with their scheduled times and content.
+  </Tab>
+  
+  <Tab title="Delete">
+    ### Delete a reminder
+    
+    Remove a reminder you no longer need.
+    
+    ```bash
+    /reminders delete id:12345
+    ```
+    
+    You can find the reminder ID using `/reminders list`.
+  </Tab>
+  
+  <Tab title="Timezone">
+    ### Set your timezone
+    
+    Configure your timezone for accurate reminder times.
+    
+    ```bash
+    /reminders timezone timezone:"America/New_York"
+    ```
+    
+    This ensures reminders are scheduled and displayed in your local time.
+  </Tab>
+</Tabs>
+
+## Custom embeds
+
+Create beautiful, rich embeds for announcements, rules, and more.
+
+### Create an embed
+
+Start building a custom embed with an interactive builder.
+
+```bash
+/embed create
+```
+
+This opens an interactive embed builder where you can customize:
+- **Title** - Main heading (up to 256 characters)
+- **Description** - Main content (up to 4000 characters)
+- **URL** - Make the title clickable
+- **Color** - Embed color (hex code or color name)
+- **Footer** - Small text at the bottom with optional icon
+- **Image** - Large image at the bottom
+- **Thumbnail** - Small image in the top right
+- **Author** - Author section with name, icon, and URL
+- **Fields** - Up to 25 custom fields with name and value
+
+<Accordion title="How to use the embed builder">
+After running `/embed create`, use the dropdown menu to select which part of the embed to edit. A form will appear where you can enter the content. Click the buttons to add fields, edit them, or adjust field layout (inline vs full width).
+</Accordion>
+
+### Manage embeds
+
+```bash
+# Edit an existing embed
+/embed edit id:your-embed-id
+
+# Send an embed to a channel
+/embed send id:your-embed-id channel:#announcements
+
+# Delete an embed
+/embed delete id:your-embed-id
+```
+
+<Info>
+Embeds are saved to your account, so you can reuse them across multiple servers and channels.
+</Info>
+
+## Server information
+
+### View server details
+
+Get comprehensive information about any server.
+
+```bash
+# View current server
+/server
+
+# View another server (if Fire is in it)
+/server guild:server-name
+```
+
+**Information shown:**
+- Server creation date and owner
+- Member count and online count
+- Server region(s)
+- Verification level and security settings
+- Channel breakdown by type
+- Server roles
+- Server features and badges
+
+### User information
+
+Get user avatars and profile information.
+
+```bash
+# Get a user's avatar
+/avatar user:@username
+
+# Get server icon
+/icon
+```
+
+## Minecraft utilities
+
+<CardGroup cols={2}>
+  <Card title="Player skin" icon="user">
+    View a Minecraft player's skin.
+    
+    ```bash
+    /minecraft skin username:Notch
+    ```
+  </Card>
+  
+  <Card title="Player UUID" icon="id-card">
+    Get a player's Minecraft UUID.
+    
+    ```bash
+    /minecraft uuid username:Notch
+    ```
+  </Card>
+  
+  <Card title="Log scanner" icon="magnifying-glass">
+    Scan Minecraft logs for errors.
+    
+    ```bash
+    /minecraft logscan
+    ```
+    
+    Attach a log file to analyze it for common issues.
+  </Card>
+  
+  <Card title="Check logs" icon="file-lines">
+    Check crash reports and logs.
+    
+    ```bash
+    /minecraft checklog
+    ```
+    
+    Upload a crash report or log file for analysis.
+  </Card>
+</CardGroup>
+
+## Time utilities
+
+Work with timezones and timestamps.
+
+```bash
+# Get current time in a timezone
+/time zone timezone:"Europe/London"
+
+# Get your local time
+/time zone
+
+# Set your timezone
+/time timezone set timezone:"America/New_York"
+
+# Create a Discord timestamp
+/time stamp time:"2024-01-01 12:00" format:relative
+```
+
+**Timestamp formats:**
+- `short time` - 12:00 PM
+- `long time` - 12:00:00 PM
+- `short date` - 01/01/2024
+- `long date` - January 1, 2024
+- `short datetime` - January 1, 2024 12:00 PM
+- `long datetime` - Sunday, January 1, 2024 12:00 PM
+- `relative` - in 2 hours / 3 days ago
+
+<Note>
+Discord timestamps automatically adjust to each user's local timezone when displayed.
+</Note>
+
+## Additional utilities
+
+### Invite information
+
+Get details about a Discord invite.
+
+```bash
+/inviteinfo invite:discord.gg/example
+```
+
+Shows server name, member count, channel, and other invite details.
+
+### Snowflake decoder
+
+Decode Discord snowflake IDs to see creation timestamps.
+
+```bash
+/snowflake id:123456789012345678
+```
+
+### Code image generator
+
+Create syntax-highlighted code images.
+
+```bash
+/codeimage language:javascript code:"console.log('Hello World');"
+```
+
+**Supported languages:**
+- JavaScript/TypeScript
+- Python
+- Java
+- C/C++/C#
+- And many more
+
+### Quote messages
+
+Quote a message from any channel.
+
+```bash
+/quote message_link:https://discord.com/channels/...
+```
+
+<Info>
+You can right-click a message and select "Copy Message Link" to get the message link.
+</Info>
+
+### Emoji lock
+
+Prevent members without a specific role from using external emojis.
+
+```bash
+/emojilock role:@Verified
+```
+
+Only members with the specified role can use custom emojis from other servers.
+
+### Slowmode sync
+
+Sync slowmode settings across multiple channels.
+
+```bash
+/slowmodesync duration:5s channels:#general,#chat
+```
+
+### Discord status
+
+Check Discord's API status.
+
+```bash
+/dstatus
+```
+
+Shows current status of Discord services and any ongoing incidents.
+
+## Permission roles
+
+Manage roles required for specific permissions.
+
+```bash
+/permroles permission:"Manage Messages" role:@Moderators
+```
+
+This helps you see which roles have specific permissions in your server.
+
+## Best practices
+
+<Steps>
+  <Step title="Set your timezone">
+    Use `/time timezone` to ensure reminders and timestamps show correctly for you.
+  </Step>
+  
+  <Step title="Create embed templates">
+    Build commonly-used embeds and save them for quick reuse.
+  </Step>
+  
+  <Step title="Use reminders for server events">
+    Set reminders for yourself before important server events or tasks.
+  </Step>
+  
+  <Step title="Share server info">
+    Use `/server` to quickly show server statistics to new moderators or members.
+  </Step>
+</Steps>
+
+## Required permissions
+
+For utility features to work properly, Fire needs:
+
+- **Send Messages** - For all utility commands
+- **Embed Links** - For embeds and rich displays
+- **Attach Files** - For code images and Minecraft utilities
+- **Manage Roles** - For emoji lock and permission tools
+- **Read Message History** - For quote command

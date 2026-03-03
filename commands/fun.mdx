@@ -1,0 +1,206 @@
+---
+title: Fun Commands
+description: Entertainment and interactive commands
+icon: game-controller
+---
+
+## Overview
+
+Fun commands provide entertainment and interactive features for your server members.
+
+## Interactive Games
+
+### 8ball
+
+Ask the magic 8-ball a question and get a mystical answer.
+
+**Command:** `/8ball`
+
+<ParamField path="question" type="String" required>
+  Your question (must end with a question mark)
+</ParamField>
+
+**Example:**
+```
+/8ball question:Will it rain tomorrow?
+```
+
+The 8-ball will respond with one of 20 possible answers, ranging from positive to negative to uncertain.
+
+<Note>
+Questions must end with a `?` or the command will not work.
+</Note>
+
+---
+
+### Tic Tac Toe
+
+Play tic-tac-toe with another member.
+
+**Command:** `/tictactoe`
+
+<ParamField path="opponent" type="User" required>
+  The user to play against
+</ParamField>
+
+**How to Play:**
+1. Use the command and mention your opponent
+2. Click buttons on the game board to place your marks
+3. First to get three in a row wins!
+
+**Example:**
+```
+/tictactoe opponent:@Friend
+```
+
+---
+
+## Search & Information
+
+### Google
+
+Search Google and get results directly in Discord.
+
+**Command:** `/google`
+
+<ParamField path="query" type="String" required>
+  Your search query
+</ParamField>
+
+**Example:**
+```
+/google query:Discord bot development
+```
+
+Returns:
+- Top search results
+- Result titles and descriptions
+- Links to full pages
+
+<Warning>
+Search results are filtered for safe content, but use responsibly in public channels.
+</Warning>
+
+---
+
+## Visual Commands
+
+### Color
+
+View information about a color and see a preview.
+
+**Command:** `/color`
+
+<ParamField path="color" type="String" required>
+  Color in hex format (e.g., #FF0000) or color name
+</ParamField>
+
+**Example:**
+```
+/color color:#FF5733
+/color color:red
+```
+
+Shows:
+- Color preview
+- Hex value
+- RGB values
+- HSL values
+- Color name (if applicable)
+
+---
+
+### Emoji
+
+Get information about an emoji or view it in large size.
+
+**Command:** `/emoji`
+
+<ParamField path="emoji" type="Emoji" required>
+  The emoji to display
+</ParamField>
+
+**Example:**
+```
+/emoji emoji:😀
+/emoji emoji:<:custom:123456789>
+```
+
+For custom emojis, shows:
+- Emoji name and ID
+- Creation date
+- Direct image URL
+- Whether it's animated
+- Server it belongs to
+
+For Unicode emojis, shows:
+- Unicode character code
+- Emoji name
+- Unicode version
+
+---
+
+## Random Responses
+
+### 8ball Responses
+
+The magic 8-ball can respond with:
+
+**Positive Answers:**
+- It is certain
+- Without a doubt
+- Yes definitely
+- You may rely on it
+- As I see it, yes
+- Most likely
+- Outlook good
+- Yes
+- Signs point to yes
+
+**Uncertain Answers:**
+- Reply hazy, try again
+- Ask again later
+- Better not tell you now
+- Cannot predict now
+- Concentrate and ask again
+
+**Negative Answers:**
+- Don't count on it
+- My reply is no
+- My sources say no
+- Outlook not so good
+- Very doubtful
+
+---
+
+## Usage Tips
+
+<AccordionGroup>
+  <Accordion title="Keep It Light">
+    Fun commands are meant for entertainment. Don't use them excessively in serious channels.
+  </Accordion>
+  
+  <Accordion title="Respect Others">
+    When playing interactive games like tic-tac-toe, make sure your opponent wants to play.
+  </Accordion>
+  
+  <Accordion title="Safe Searches">
+    The Google command filters results, but always be mindful of your server's content rules.
+  </Accordion>
+  
+  <Accordion title="Emoji Information">
+    Use the emoji command to find the ID of custom emojis for use in configurations or other bots.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Customization
+
+Server administrators can restrict fun commands to specific channels using Fire's command restriction features. See the [Configuration](/commands/configuration) page for details.
+
+---
+
+## Coming Soon
+
+More fun and interactive commands are in development! Join the [support server](https://inv.wtf/fire) to suggest new features.

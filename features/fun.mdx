@@ -1,0 +1,266 @@
+---
+title: Fun & entertainment
+description: Games, activities, and entertainment features to engage your Discord community
+---
+
+Keep your Discord community engaged and entertained with Fire's fun features. From interactive games to Google Assistant integration, there's something for everyone.
+
+## Games
+
+### Tic-Tac-Toe
+
+Challenge another member to a classic game of Tic-Tac-Toe.
+
+```bash
+/tictactoe opponent:@username
+```
+
+**How it works:**
+
+<Steps>
+  <Step title="Challenge a player">
+    Use the command and select your opponent. They'll receive a challenge button to accept.
+  </Step>
+  
+  <Step title="Take turns">
+    Click the buttons on the 3x3 grid to place your X or O. The game tracks whose turn it is.
+  </Step>
+  
+  <Step title="Win or draw">
+    Get three in a row (horizontal, vertical, or diagonal) to win! If all spaces fill without a winner, it's a draw.
+  </Step>
+  
+  <Step title="Forfeit if needed">
+    Click the forfeit button if you need to end the game early.
+  </Step>
+</Steps>
+
+<Note>
+You can only have one active game at a time. If you start a new game, you'll be asked to end your current one first.
+</Note>
+
+<Warning>
+Both players need to have the ability to see messages in the channel. The game won't work in ephemeral (private) messages.
+</Warning>
+
+### Magic 8-Ball
+
+Ask the magic 8-ball for answers to your questions.
+
+```bash
+/8ball question:"Will it rain tomorrow?"
+```
+
+The 8-ball will give you a mystical response to guide your decisions!
+
+## Google Assistant integration
+
+Use Google Assistant directly from Discord to get answers, information, and more.
+
+```bash
+/google query:"What's the weather like today?"
+```
+
+**What you can ask:**
+- Weather forecasts
+- General knowledge questions
+- Math calculations
+- Unit conversions
+- Time in different locations
+- Sports scores
+- And much more!
+
+<Tabs>
+  <Tab title="Basic queries">
+    ### Ask questions
+    
+    ```bash
+    /google query:"What is the capital of France?"
+    /google query:"Convert 100 USD to EUR"
+    /google query:"What time is it in Tokyo?"
+    ```
+    
+    The Assistant will provide responses with relevant information and sometimes visual cards.
+  </Tab>
+  
+  <Tab title="Context menu">
+    ### Quick Google search
+    
+    Right-click (or long-press on mobile) any message and select:
+    **Apps → Google it**
+    
+    This will send the message content as a query to Google Assistant.
+  </Tab>
+  
+  <Tab title="Authentication">
+    ### Personal Assistant (Experimental)
+    
+    You can optionally link your own Google account for personalized responses.
+    
+    <Note>
+    This is an experimental feature that allows Google Assistant to access your personal information (like calendar, reminders, etc.) when responding to queries.
+    </Note>
+    
+    After running `/google` for the first time, you'll see an authentication button if you're eligible for this feature.
+  </Tab>
+</Tabs>
+
+<Info>
+The Google Assistant feature has a cooldown of 5 seconds between queries to prevent spam.
+</Info>
+
+<Accordion title="Why isn't Google Assistant responding?">
+If Google Assistant is not responding, it might be temporarily unavailable. The feature requires a backend service to be running. Try again in a few moments, or contact support if the issue persists.
+</Accordion>
+
+## Color utilities
+
+Explore and work with colors.
+
+```bash
+/color code:#FF5733
+```
+
+**Supported formats:**
+- Hex codes: `#FF5733` or `FF5733`
+- RGB: `rgb(255, 87, 51)`
+- Color names: `red`, `blue`, `coral`
+- HSL: `hsl(9, 100%, 60%)`
+
+**Information shown:**
+- Color preview
+- Hex code
+- RGB values
+- HSL values
+- Color name (if applicable)
+- Complementary colors
+
+<Info>
+This is useful for designers and developers who need to work with colors in their Discord server (for role colors, embed colors, etc.).
+</Info>
+
+## Emoji tools
+
+Get detailed information about emojis.
+
+```bash
+/emoji name:thinking
+```
+
+**Features:**
+- View emoji details
+- Get emoji IDs for custom emojis
+- See emoji URLs
+- Find emojis by name
+
+<Tabs>
+  <Tab title="Standard emoji">
+    ```bash
+    /emoji name:🤔
+    ```
+    
+    Shows Unicode information and other details about standard Discord emojis.
+  </Tab>
+  
+  <Tab title="Custom emoji">
+    ```bash
+    /emoji name:custom_emoji_name
+    ```
+    
+    Shows the custom emoji ID, server it's from, and direct image URL.
+  </Tab>
+</Tabs>
+
+## Incognito mode
+
+Hide your activities from leaderboards and public stats.
+
+```bash
+/incognito
+```
+
+When enabled:
+- You won't appear on public leaderboards
+- Your stats are hidden from other members
+- Some features like Tic-Tac-Toe won't work (to prevent ghosting)
+
+<Warning>
+Incognito mode prevents you from playing games because it would allow you to see other players without them seeing you.
+</Warning>
+
+## Profile customization
+
+View and customize user profiles.
+
+```bash
+# View your own profile
+/profile
+
+# View another user's profile
+/profile user:@username
+```
+
+## Entertainment best practices
+
+<CardGroup cols={2}>
+  <Card title="Create game channels" icon="gamepad">
+    Set up dedicated channels for games to keep your main channels clean.
+  </Card>
+  
+  <Card title="Encourage participation" icon="users">
+    Announce game tournaments or challenges to boost engagement.
+  </Card>
+  
+  <Card title="Set cooldowns" icon="clock">
+    Use slowmode in game channels if they get too busy.
+  </Card>
+  
+  <Card title="Use Google wisely" icon="brain">
+    Google Assistant is great for trivia and quick information lookups!
+  </Card>
+</CardGroup>
+
+## Fun command summary
+
+| Command | Description | Cooldown |
+|---------|-------------|----------|
+| `/tictactoe` | Challenge someone to Tic-Tac-Toe | None |
+| `/8ball` | Ask the magic 8-ball a question | None |
+| `/google` | Use Google Assistant for queries | 5 seconds |
+| `/color` | Get information about a color | None |
+| `/emoji` | Get emoji details and information | None |
+| `/incognito` | Toggle privacy mode | None |
+
+## Ideas for engagement
+
+<Steps>
+  <Step title="Host tournaments">
+    Organize Tic-Tac-Toe tournaments with prizes for winners.
+  </Step>
+  
+  <Step title="Trivia nights">
+    Use Google Assistant for trivia questions and fact-checking.
+  </Step>
+  
+  <Step title="Daily 8-ball">
+    Create a daily question for members to ask the 8-ball.
+  </Step>
+  
+  <Step title="Color themes">
+    Use `/color` to help coordinate server role colors and aesthetics.
+  </Step>
+</Steps>
+
+## Required permissions
+
+For fun features to work properly, Fire needs:
+
+- **Send Messages** - For all commands
+- **Embed Links** - For rich game displays
+- **Add Reactions** - For game interactions
+- **Use External Emojis** - For enhanced game visuals
+- **Attach Files** - For Google Assistant screenshots
+
+<Note>
+Most fun features work in both servers and DMs, making them accessible anywhere in Discord.
+</Note>

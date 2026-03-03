@@ -1,0 +1,713 @@
+---
+title: Creating Commands
+description: Learn how to create commands for Fire Discord Bot
+---
+
+## Command Basics
+
+Fire commands extend the `Command` base class from `lib/util/command.ts` and support both traditional text commands and slash commands.
+
+## Command Structure
+
+### Basic Command Template
+
+Here's a minimal command structure:
+
+```typescript src/commands/Main/ping.ts
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { MessageEmbed } from "discord.js";
+
+export default class Ping extends Command {
+  constructor() {
+    super("ping", {
+      description: (language: Language) =>
+        language.get("PING_COMMAND_DESCRIPTION"),
+      enableSlashCommand: true,
+      restrictTo: "all",
+      slashOnly: true,
+    });
+  }
+
+  async run(command: ApplicationCommandMessage) {
+    const embed = new MessageEmbed()
+      .setTitle(
+        `:ping_pong: ${this.client.restPing}ms\n:heartpulse: ${
+          this.client.ws.shards.get(command.shard)?.ping ?? -1
+        }ms`
+      )
+      .setColor(command.member?.displayColor || "#FFFFFF")
+      .setFooter({
+        text: command.language.get("PING_FOOTER", {
+          shard: command.shard,
+          cluster: this.client.manager.id,
+        }),
+      })
+      .setTimestamp();
+
+    return await command.channel.send({ embeds: [embed] });
+  }
+}
+```
+
+### Command with Arguments
+
+Here's an example with arguments:
+
+```typescript src/commands/Utilities/avatar.ts
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+
+export default class Avatar extends Command {
+  constructor() {
+    super("avatar", {
+      description: (language: Language) =>
+        language.get("AVATAR_COMMAND_DESCRIPTION"),
+      args: [
+        {
+          id: "user",
+          type: "user|member",
+          match: "rest",
+          default: undefined,
+          required: false,
+        },
+      ],
+      enableSlashCommand: true,
+      restrictTo: "all",
+      slashOnly: true,
+    });
+  }
+
+  async run(
+    command: ApplicationCommandMessage,
+    args: { user: FireMember | FireUser | null }
+  ) {
+    let user = args.user;
+    if (typeof user == "undefined") user = command.member ?? command.author;
+    else if (!user) return;
+
+    const color =
+      user instanceof FireMember
+        ? user?.displayColor
+        : command.member?.displayColor;
+
+    const embed = new MessageEmbed()
+      .setColor(color)
+      .setTimestamp()
+      .setTitle(command.language.get("AVATAR_TITLE", { user: user.toString() }))
+      .setImage(
+        user?.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      );
+
+    return await command.channel.send({ embeds: [embed] });
+  }
+}
+```
+
+## Command Options
+
+The `Command` constructor accepts various options:
+
+### Basic Options
+
+```typescript
+interface CommandOptions {
+  // Command description (supports i18n)
+  description?: ((language: Language) => string) | string;
+  
+  // Command aliases
+  aliases?: string[];
+  
+  // Where command can be used
+  restrictTo?: "guild" | "dm" | "all";
+  
+  // Enable as slash command
+  enableSlashCommand?: boolean;
+  
+  // Only available as slash command
+  slashOnly?: boolean;
+  
+  // Command arguments
+  args?: ArgumentOptions[];
+  
+  // Cooldown in milliseconds (default: 2500)
+  cooldown?: number;
+  
+  // User permissions required
+  userPermissions?: bigint[];
+  
+  // Bot permissions required
+  clientPermissions?: bigint[];
+}
+```
+
+### Advanced Options
+
+```typescript
+interface CommandOptions {
+  // Only for bot moderators
+  moderatorOnly?: boolean;
+  
+  // Only for superusers
+  superuserOnly?: boolean;
+  
+  // Requires premium
+  premium?: boolean;
+  
+  // Hide from help command
+  hidden?: boolean;
+  
+  // Response is ephemeral (only slash)
+  ephemeral?: boolean;
+  
+  // Defer response
+  deferAnyways?: boolean;
+  
+  // Guild-specific command
+  guilds?: Snowflake[];
+  
+  // Parent command (for subcommands)
+  parent?: string;
+  
+  // Is a command group
+  group?: boolean;
+  
+  // Context menu command
+  context?: string[];
+  
+  // Requires experiment
+  requiresExperiment?: { id: number; bucket: number };
+}
+```
+
+## Argument Types
+
+Fire provides many built-in argument types:
+
+### Basic Types
+
+```typescript
+args: [
+  { id: "text", type: "string" },
+  { id: "amount", type: "number" },
+  { id: "enabled", type: "boolean" },
+]
+```
+
+### Discord Types
+
+```typescript
+args: [
+  // User or member
+  { id: "target", type: "user|member" },
+  
+  // Member only (requires guild)
+  { id: "member", type: "member" },
+  
+  // User only
+  { id: "user", type: "user" },
+  
+  // Role
+  { id: "role", type: "role" },
+  
+  // Channel
+  { id: "channel", type: "textChannel" },
+  
+  // Any guild channel
+  { id: "channel", type: "guildChannel" },
+  
+  // Category channel
+  { id: "category", type: "category" },
+  
+  // Member or role
+  { id: "target", type: "member|role" },
+  
+  // Attachment/image
+  { id: "image", type: "image" },
+]
+```
+
+### Fire-Specific Types
+
+```typescript
+args: [
+  // Another command
+  { id: "command", type: "command" },
+  
+  // Module
+  { id: "module", type: "module" },
+  
+  // Language code
+  { id: "language", type: "language" },
+  
+  // Message (by ID or link)
+  { id: "message", type: "message" },
+  
+  // Codeblock
+  { id: "code", type: "codeblock" },
+  
+  // Time/duration
+  { id: "duration", type: "time" },
+  
+  // Emoji
+  { id: "emoji", type: "emoji" },
+]
+```
+
+### Argument Options
+
+```typescript
+interface ArgumentOptions {
+  // Argument identifier
+  id: string;
+  
+  // Type (see above)
+  type: string | ArgumentTypeCaster;
+  
+  // Description (for slash commands)
+  description?: (language: Language) => string;
+  
+  // Is required?
+  required?: boolean;
+  
+  // Default value
+  default?: any;
+  
+  // Match type
+  match?: "rest" | "phrase" | "flag" | "option" | "text";
+  
+  // Flag name (for --flag arguments)
+  flag?: string;
+  
+  // For slash commands
+  slashCommandType?: string;
+  autocomplete?: boolean;
+  choices?: { name: string; value: string }[];
+}
+```
+
+## Execution Methods
+
+Commands can implement two execution methods:
+
+### run() - For Slash Commands
+
+```typescript
+async run(
+  command: ApplicationCommandMessage | ContextCommandMessage,
+  args: Record<string, any>
+): Promise<any> {
+  // Slash command execution
+}
+```
+
+### exec() - For Text Commands
+
+```typescript
+async exec(
+  message: FireMessage,
+  args: Record<string, any>
+): Promise<any> {
+  // Text command execution
+}
+```
+
+<Note>
+Most modern commands use `slashOnly: true` and only implement `run()`.
+</Note>
+
+## Command Categories
+
+Commands are organized by category based on their directory:
+
+```
+src/commands/
+├── Admin/           # Bot administration
+├── Configuration/   # Guild configuration
+├── Fun/            # Fun/entertainment commands
+├── Main/           # Core bot commands
+├── Moderation/     # Moderation tools
+├── Premium/        # Premium-only features
+├── Starboard/      # Starboard management
+├── Tags/           # Custom tags
+├── Tickets/        # Ticket system
+└── Utilities/      # Utility commands
+```
+
+The category is automatically determined by the directory (lib/Fire.ts:295).
+
+## Subcommands and Groups
+
+### Creating Subcommands
+
+**Parent Command:**
+```typescript
+export default class Config extends Command {
+  constructor() {
+    super("config", {
+      description: (language: Language) =>
+        language.get("CONFIG_DESCRIPTION"),
+      enableSlashCommand: true,
+      group: true,  // This is a group
+    });
+  }
+}
+```
+
+**Subcommand:**
+```typescript
+export default class ConfigPrefix extends Command {
+  constructor() {
+    super("config-prefix", {  // Format: parent-subcommand
+      description: (language: Language) =>
+        language.get("CONFIG_PREFIX_DESCRIPTION"),
+      parent: "config",  // Reference parent
+      args: [/* ... */],
+    });
+  }
+  
+  async run(command: ApplicationCommandMessage, args: any) {
+    // Subcommand logic
+  }
+}
+```
+
+### Subcommand Groups
+
+**Group:**
+```typescript
+export default class ConfigModeration extends Command {
+  constructor() {
+    super("config-moderation", {
+      description: (language: Language) =>
+        language.get("CONFIG_MODERATION_DESCRIPTION"),
+      parent: "config",
+      group: true,  // This is a subcommand group
+    });
+  }
+}
+```
+
+**Nested Subcommand:**
+```typescript
+export default class ConfigModerationAutomod extends Command {
+  constructor() {
+    super("config-moderation-automod", {
+      description: (language: Language) =>
+        language.get("CONFIG_MODERATION_AUTOMOD_DESCRIPTION"),
+      parent: "config-moderation",
+      args: [/* ... */],
+    });
+  }
+}
+```
+
+## Permissions
+
+### User Permissions
+
+```typescript
+constructor() {
+  super("ban", {
+    userPermissions: [PermissionFlagsBits.BanMembers],
+  });
+}
+```
+
+### Bot Permissions
+
+```typescript
+constructor() {
+  super("nickname", {
+    clientPermissions: [
+      PermissionFlagsBits.ManageNicknames,
+      PermissionFlagsBits.SendMessages,
+    ],
+  });
+}
+```
+
+### Custom Permission Checks
+
+```typescript
+constructor() {
+  super("admin-command", {
+    moderatorOnly: true,  // Requires guild moderator role
+  });
+}
+
+constructor() {
+  super("eval", {
+    superuserOnly: true,  // Requires bot superuser
+  });
+}
+```
+
+## Slash Command Features
+
+### Autocomplete
+
+```typescript
+args: [
+  {
+    id: "item",
+    type: "string",
+    autocomplete: true,
+  },
+]
+
+async autocomplete(
+  interaction: ApplicationCommandMessage,
+  focused: CommandInteractionOption
+): Promise<string[]> {
+  // Return autocomplete suggestions
+  return ["option1", "option2", "option3"];
+}
+```
+
+### Choices
+
+```typescript
+args: [
+  {
+    id: "type",
+    type: "string",
+    choices: [
+      { name: "Option 1", value: "opt1" },
+      { name: "Option 2", value: "opt2" },
+    ],
+  },
+]
+```
+
+### Ephemeral Responses
+
+```typescript
+constructor() {
+  super("secret", {
+    ephemeral: true,  // Only visible to command user
+  });
+}
+```
+
+## Lifecycle Hooks
+
+### init() - Command Initialization
+
+Called when command is loaded (lib/util/command.ts:288-300):
+
+```typescript
+async init(): Promise<any> {
+  // Custom initialization logic
+  // Called after command is loaded
+  // Default implementation refreshes slash commands
+}
+```
+
+### unload() - Command Cleanup
+
+Called when command is removed (lib/util/command.ts:302-314):
+
+```typescript
+async unload(): Promise<any> {
+  // Cleanup logic
+  // Called before command is unloaded
+}
+```
+
+## Internationalization (i18n)
+
+Commands should support multiple languages:
+
+```typescript
+constructor() {
+  super("help", {
+    description: (language: Language) =>
+      language.get("HELP_COMMAND_DESCRIPTION"),
+    args: [
+      {
+        id: "command",
+        type: "command",
+        description: (language: Language) =>
+          language.get("HELP_COMMAND_ARG_DESCRIPTION"),
+      },
+    ],
+  });
+}
+
+async run(command: ApplicationCommandMessage, args: any) {
+  const message = command.language.get("HELP_MESSAGE", {
+    user: command.author.toString(),
+  });
+  // ...
+}
+```
+
+## Best Practices
+
+### Error Handling
+
+```typescript
+async run(command: ApplicationCommandMessage, args: any) {
+  try {
+    // Command logic
+  } catch (error) {
+    this.client.console.error(
+      `[Command/${this.id}]`,
+      error
+    );
+    return await command.error("COMMAND_ERROR_GENERIC");
+  }
+}
+```
+
+### Deferred Responses
+
+For long-running commands:
+
+```typescript
+constructor() {
+  super("slow-command", {
+    deferAnyways: true,  // Auto-defer the response
+  });
+}
+
+async run(command: ApplicationCommandMessage) {
+  // Command is already deferred
+  // Do slow operation
+  const result = await someSlowOperation();
+  
+  // Edit the deferred response
+  return await command.editReply({ content: result });
+}
+```
+
+### Guild-Only Commands
+
+```typescript
+constructor() {
+  super("guild-command", {
+    restrictTo: "guild",  // Only works in guilds
+  });
+}
+
+async run(command: ApplicationCommandMessage) {
+  // command.guild is guaranteed to exist
+  const guild = command.guild;
+}
+```
+
+### Response Helpers
+
+Fire's message extensions provide helpers:
+
+```typescript
+// Success message
+await command.success("OPERATION_SUCCESS");
+
+// Error message
+await command.error("OPERATION_FAILED");
+
+// Send message
+await command.channel.send({ content: "Message" });
+
+// Reply to command
+await command.reply({ content: "Reply" });
+```
+
+## Testing Your Command
+
+<Steps>
+  <Step title="Compile and Run">
+    ```bash
+    pnpm dev
+    ```
+  </Step>
+  
+  <Step title="Test in Discord">
+    Use your test server to execute the command
+  </Step>
+  
+  <Step title="Check Logs">
+    Monitor console output for errors
+  </Step>
+  
+  <Step title="Test Edge Cases">
+    - Invalid arguments
+    - Missing permissions
+    - In DMs vs guilds
+    - Different user roles
+  </Step>
+</Steps>
+
+## Common Patterns
+
+### Confirmation Prompts
+
+```typescript
+const button = new MessageButton()
+  .setCustomId(`confirm:${command.author.id}`)
+  .setLabel("Confirm")
+  .setStyle("DANGER");
+
+const row = new MessageActionRow().addComponents(button);
+
+await command.channel.send({
+  content: "Are you sure?",
+  components: [row],
+});
+
+// Register button handler
+this.client.buttonHandlersOnce.set(
+  `confirm:${command.author.id}`,
+  async (interaction) => {
+    // Handle confirmation
+  }
+);
+```
+
+### Pagination
+
+```typescript
+const pages = [...]; // Array of embeds
+let currentPage = 0;
+
+const buttons = new MessageActionRow().addComponents(
+  new MessageButton()
+    .setCustomId(`prev:${command.author.id}`)
+    .setLabel("Previous")
+    .setStyle("PRIMARY"),
+  new MessageButton()
+    .setCustomId(`next:${command.author.id}`)
+    .setLabel("Next")
+    .setStyle("PRIMARY")
+);
+
+const msg = await command.channel.send({
+  embeds: [pages[currentPage]],
+  components: [buttons],
+});
+
+// Handle button interactions for pagination
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Module Development" icon="puzzle-piece" href="/development/modules">
+    Learn how to create modules
+  </Card>
+  
+  <Card title="Architecture" icon="diagram-project" href="/development/architecture">
+    Understand Fire's architecture
+  </Card>
+</CardGroup>

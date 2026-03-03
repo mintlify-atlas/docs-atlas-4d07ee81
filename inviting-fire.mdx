@@ -1,0 +1,244 @@
+---
+title: "Inviting Fire"
+description: "Add Fire to your Discord server or user account"
+---
+
+## Invitation methods
+
+Fire can be added to your Discord server or installed to your user account. Choose the method that works best for you.
+
+<Tabs>
+  <Tab title="Add to server">
+    ### Add Fire to your Discord server
+
+    <Steps>
+      <Step title="Open the invite link">
+        Use the invite command within Discord or visit the invite link directly:
+
+        In Discord, use:
+        ```
+        /invite
+        ```
+
+        Or visit the [Discord App Directory](https://discord.com/application-directory/444871677176709141) to add Fire.
+
+        <Tip>
+          Using the `/invite` command in a server where Fire is already present gives you quick access to the invite link.
+        </Tip>
+      </Step>
+
+      <Step title="Select your server">
+        When prompted, choose the server you want to add Fire to from the dropdown menu.
+
+        <Warning>
+          You must have **Manage Server** or **Administrator** permissions in a server to add bots to it.
+        </Warning>
+      </Step>
+
+      <Step title="Review permissions">
+        Discord will show you the permissions Fire is requesting. These permissions are required for Fire to function properly:
+
+        **Essential permissions:**
+        - **View Channels** - See server channels
+        - **Send Messages** - Respond to commands
+        - **Embed Links** - Send rich embeds
+        - **Attach Files** - Send images and files
+        - **Read Message History** - Access message context
+        - **Add Reactions** - React to messages
+        - **Use External Emojis** - Use Fire's custom emojis
+
+        **Moderation permissions:**
+        - **Manage Messages** - Delete messages for moderation
+        - **Manage Roles** - Assign roles and manage permissions
+        - **Kick Members** - Remove members from the server
+        - **Ban Members** - Ban members from the server
+        - **Manage Channels** - Create ticket channels and manage lockdowns
+        - **Manage Webhooks** - For advanced logging features
+
+        <Note>
+          While you can deselect some permissions during setup, removing essential permissions may prevent certain features from working.
+        </Note>
+      </Step>
+
+      <Step title="Authorize Fire">
+        Click **Authorize** to complete the invitation process.
+
+        Complete the CAPTCHA verification if prompted.
+
+        <Check>
+          Fire will join your server and send a message in your system messages channel (if configured) or the first channel it has permission to send messages in.
+        </Check>
+      </Step>
+    </Steps>
+
+    ## After inviting Fire
+
+    Once Fire joins your server:
+
+    1. **Check Fire's role position** - Ensure Fire's role is above any roles you want it to manage
+    2. **Review channel permissions** - Grant Fire access to channels where you want it to function
+    3. **Start setup** - Follow the [quick setup guide](/quickstart) to configure Fire
+
+    ### Verify Fire is working
+
+    Test Fire with a simple command:
+
+    ```
+    /ping
+    ```
+
+    If Fire responds with latency information, it's working correctly!
+
+  </Tab>
+  <Tab title="Install to account">
+    ### Install Fire to your user account
+
+    Discord allows you to install certain bots to your user account for personal use.
+
+    <Steps>
+      <Step title="Access the App Directory">
+        Visit Fire's page in the [Discord App Directory](https://discord.com/application-directory/444871677176709141).
+      </Step>
+
+      <Step title="Click 'Add App'">
+        Instead of selecting a server, look for the option to add Fire to your account.
+
+        <Note>
+          User-installed apps have limited functionality compared to server installations. Some features like moderation and server management won't be available.
+        </Note>
+      </Step>
+
+      <Step title="Authorize the installation">
+        Review the permissions and click **Authorize**.
+
+        Complete any CAPTCHA verification if prompted.
+      </Step>
+    </Steps>
+
+    ### Using Fire on your account
+
+    When installed to your account, you can:
+    - Use Fire in DMs
+    - Access utility commands
+    - View your personal settings
+    - Use non-server-specific features
+
+    You cannot:
+    - Use moderation commands
+    - Configure server settings
+    - Access server-specific features like tickets or tags
+
+  </Tab>
+</Tabs>
+
+## Multiple server management
+
+You can add Fire to as many servers as you need. Each server has its own independent configuration, so settings in one server won't affect others.
+
+### Managing Fire across servers
+
+<Accordion title="Different configurations per server">
+  Every server where Fire is installed can be configured independently:
+  - Each server can have its own language setting
+  - Moderation settings don't carry over between servers
+  - Tags are server-specific
+  - Logging channels are unique to each server
+</Accordion>
+
+<Accordion title="Premium features">
+  Fire Premium is applied per server. If you have Premium, you'll need to activate it for each server where you want to use Premium features.
+
+  Learn more about [Premium features](/features/premium).
+</Accordion>
+
+## Removing Fire from your server
+
+If you need to remove Fire:
+
+1. Go to **Server Settings** → **Integrations**
+2. Find Fire in the list of bots
+3. Click **Remove** or **Kick**
+4. Confirm the removal
+
+<Warning>
+  Removing Fire will delete all server-specific data including tags, tickets, and custom settings. This action cannot be undone.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Fire isn't responding to commands">
+    If Fire doesn't respond to commands:
+
+    1. **Check permissions** - Ensure Fire has "Send Messages" and "Use Application Commands" permissions in the channel
+    2. **Check role position** - Fire's role must be visible in the member list and have appropriate permissions
+    3. **Wait a moment** - Discord can take a few seconds to sync slash commands after Fire joins
+    4. **Try in another channel** - Permission issues may be channel-specific
+
+    If problems persist, join our [support server](https://inv.wtf/fire) for help.
+  </Accordion>
+
+  <Accordion title="Slash commands aren't showing up">
+    If you don't see Fire's slash commands:
+
+    1. **Wait 5-10 minutes** - Discord takes time to sync slash commands
+    2. **Check permissions** - Ensure Fire has "Use Application Commands" permission
+    3. **Restart Discord** - Reload Discord to refresh the command cache
+    4. **Re-invite Fire** - If commands still don't appear, try kicking and re-inviting Fire with proper permissions
+  </Accordion>
+
+  <Accordion title="Fire can't manage roles or moderate">
+    If Fire can't perform moderation actions:
+
+    1. **Check role hierarchy** - Fire's role must be above the roles it needs to manage
+    2. **Verify permissions** - Ensure Fire has the necessary moderation permissions
+    3. **Check channel overrides** - Channel-specific permission overrides may be preventing actions
+
+    Remember: Fire cannot moderate members with a higher role than Fire's highest role, including server owners.
+  </Accordion>
+
+  <Accordion title="Can't invite Fire to my server">
+    If you're unable to invite Fire:
+
+    1. **Verify your permissions** - You need "Manage Server" or "Administrator" permissions
+    2. **Check server age** - Very new servers may have restrictions on adding bots
+    3. **Contact server owner** - Ask an administrator to invite Fire for you
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick setup guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Configure Fire for your server
+  </Card>
+  <Card
+    title="Join support server"
+    icon="discord"
+    href="https://inv.wtf/fire"
+  >
+    Get help and stay updated
+  </Card>
+  <Card
+    title="Explore features"
+    icon="compass"
+    href="/features/overview"
+  >
+    Discover what Fire can do
+  </Card>
+  <Card
+    title="View commands"
+    icon="terminal"
+    href="/commands/overview"
+  >
+    Browse all available commands
+  </Card>
+</CardGroup>
+
+<Note>
+  Need help with Fire? Our [support server](https://inv.wtf/fire) has a dedicated team ready to assist you.
+</Note>

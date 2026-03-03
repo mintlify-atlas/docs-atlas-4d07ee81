@@ -1,0 +1,534 @@
+---
+title: Ticket System Setup
+description: Configure and manage Fire's support ticket system for member assistance
+---
+
+Fire's ticket system allows members to create private support channels to get help from your staff. This guide covers setup, configuration, and best practices.
+
+## What Are Tickets?
+
+Tickets are private channels created for individual members to:
+- Get support from staff
+- Report issues privately
+- Appeal moderation actions
+- Request assistance with server features
+
+Each ticket is only visible to the creator, staff, and specified support roles.
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Required Permissions" icon="shield-check">
+    - **Manage Channels** - Create ticket channels
+    - **Manage Roles** - Set channel permissions
+    - **Send Messages** - Reply in tickets
+  </Card>
+  <Card title="Server Requirements" icon="server">
+    - Fire must be invited to your server
+    - You need **Manage Server** permission
+    - A category or channel for tickets
+  </Card>
+</CardGroup>
+
+## Ticket System Setup
+
+<Steps>
+  <Step title="Create a Ticket Category">
+    First, create a category for tickets in your server:
+    
+    1. Right-click your server → **Create Category**
+    2. Name it something like "Support Tickets" or "Tickets"
+    3. Adjust permissions so:
+       - `@everyone` cannot **View Channel**
+       - Fire can **View Channel**, **Manage Channels**, **Manage Roles**, **Send Messages**
+       - Your moderator/staff roles can **View Channel**
+    
+    <Note>
+      Fire will automatically add the ticket creator to each ticket channel's permissions.
+    </Note>
+  </Step>
+
+  <Step title="Enable the Ticket System">
+    Enable tickets and specify where they should be created:
+    
+    ```bash
+    /ticket enable category:Support Tickets
+    ```
+    
+    This tells Fire to create new ticket channels in the "Support Tickets" category.
+  </Step>
+
+  <Step title="Test Ticket Creation">
+    Create a test ticket to verify everything works:
+    
+    ```bash
+    /new subject:Testing the ticket system
+    ```
+    
+    You should see a new channel created in your ticket category with access restricted to you and staff.
+  </Step>
+
+  <Step title="Close the Test Ticket">
+    Test the closing process:
+    
+    ```bash
+    /close reason:Test complete
+    ```
+    
+    Fire will prompt for confirmation, then delete or archive the channel.
+  </Step>
+</Steps>
+
+<Warning>
+  Do not manually delete ticket channels. Always use `/close` to ensure proper logging and archiving.
+</Warning>
+
+## Alternative: Thread-Based Tickets
+
+Instead of creating separate channels, Fire can create private threads for tickets.
+
+<Steps>
+  <Step title="Create a Ticket Channel">
+    Create a dedicated text channel for tickets (e.g., `#create-ticket`):
+    
+    1. Create a new text channel
+    2. Set permissions so members can view but not send messages
+    3. Post instructions on how to create tickets
+  </Step>
+
+  <Step title="Enable Thread-Based Tickets">
+    Configure Fire to use threads instead of channels:
+    
+    ```bash
+    /ticket enable channel:#create-ticket
+    ```
+    
+    <Info>
+      Thread-based tickets are cleaner and don't clutter your channel list. They appear as threads in the designated channel.
+    </Info>
+  </Step>
+
+  <Step title="Members Create Tickets">
+    Members create tickets using:
+    
+    ```bash
+    /new subject:I need help with verification
+    ```
+    
+    A private thread will be created where only the member, staff, and Fire can communicate.
+  </Step>
+</Steps>
+
+## Configuring Ticket Settings
+
+### Set Ticket Limit
+
+Limit how many tickets a member can have open simultaneously:
+
+```bash
+/ticket limit 2
+```
+
+This prevents ticket spam while allowing members to have multiple issues tracked.
+
+<Note>
+  Default limit is 1 ticket per member. Maximum is 5 tickets.
+</Note>
+
+### Customize Ticket Names
+
+Change the naming format for ticket channels:
+
+```bash
+/ticket name ticket-{id}
+```
+
+Available variables:
+- `{id}` - Unique ticket number
+- `{username}` - Ticket creator's username
+- `{timestamp}` - Creation timestamp
+
+### Set Ticket Description
+
+Customize the message sent when tickets are created:
+
+```bash
+/ticket description Thank you for contacting support! A staff member will assist you shortly.
+```
+
+### Configure Support Alerts
+
+Get notified when new tickets are created:
+
+```bash
+/ticket alert role:@Support-Team
+/ticket alert channel:#ticket-alerts
+```
+
+### Toggle Ticket System
+
+Temporarily disable ticket creation without removing the configuration:
+
+```bash
+# Disable tickets
+/ticket toggle off
+
+# Re-enable tickets
+/ticket toggle on
+```
+
+You can set a custom message shown when tickets are disabled:
+
+```bash
+/ticket toggle message:Ticket system is temporarily unavailable. Please ask in #support instead.
+```
+
+## Managing Tickets
+
+### Creating Tickets (Member Perspective)
+
+Members create tickets using the `/new` command:
+
+```bash
+# Basic ticket
+/new
+
+# Ticket with subject
+/new subject:Cannot access channels after verification
+```
+
+Fire will:
+1. Create a private channel or thread
+2. Add the member to it
+3. Send the configured welcome message
+4. Alert support staff (if configured)
+
+### Viewing Open Tickets
+
+Staff can view all open tickets:
+
+```bash
+/ticket list
+```
+
+This shows:
+- Ticket ID
+- Creator
+- Creation time
+- Subject
+- Status
+
+### Closing Tickets
+
+Close tickets when the issue is resolved:
+
+```bash
+# Basic close
+/close
+
+# Close with reason
+/close reason:Issue resolved - permissions fixed
+```
+
+Fire will:
+1. Ask for confirmation (unless used by staff)
+2. Log the closure to mod logs
+3. Delete or archive the channel
+
+<Info>
+  Members can close their own tickets. Staff can close any ticket.
+</Info>
+
+### Adding Members to Tickets
+
+Add additional members to a ticket conversation:
+
+```bash
+/ticket add user:@Member
+```
+
+Remove members from tickets:
+
+```bash
+/ticket remove user:@Member
+```
+
+### Managing Support Roles
+
+By default, moderators can view all tickets. Add additional support roles:
+
+```bash
+/ticket invitable role:@Support-Team
+```
+
+This allows members with the specified role to access all tickets.
+
+## Ticket Workflow Best Practices
+
+<Steps>
+  <Step title="Set Clear Expectations">
+    In your ticket description, include:
+    - Average response time
+    - What information to provide
+    - Rules for ticket usage
+    
+    Example:
+    ```bash
+    /ticket description Welcome! Please describe your issue in detail. Our team typically responds within 2-4 hours. Please be patient and respectful.
+    ```
+  </Step>
+
+  <Step title="Create Response Templates">
+    Use Fire's tag system for common responses:
+    
+    ```bash
+    /tag create name:verification content:To verify, go to #verify and click the button.
+    ```
+    
+    Then use in tickets:
+    ```bash
+    /tag verification
+    ```
+  </Step>
+
+  <Step title="Triage Tickets Quickly">
+    When a ticket is created:
+    1. Acknowledge within 15-30 minutes
+    2. Ask for additional information if needed
+    3. Assign to appropriate staff member
+    4. Set expectations for resolution time
+  </Step>
+
+  <Step title="Use Ticket Notes">
+    Add internal notes to tickets for staff:
+    
+    ```bash
+    /note user:@TicketCreator note:User was previously warned for similar issue
+    ```
+    
+    <Note>
+      Notes are only visible to staff, not the ticket creator.
+    </Note>
+  </Step>
+
+  <Step title="Close Tickets Properly">
+    Always include a reason when closing:
+    
+    ```bash
+    /close reason:Permissions fixed - verified user can now access all channels
+    ```
+    
+    This helps with:
+    - Record keeping
+    - Identifying common issues
+    - Training new support staff
+  </Step>
+</Steps>
+
+## Common Ticket Use Cases
+
+<CardGroup cols={2}>
+  <Card title="General Support" icon="headset">
+    **Setup**: Basic ticket system in #create-ticket
+    
+    Members use for:
+    - Technical issues
+    - Feature questions  
+    - General assistance
+    
+    `/ticket description Need help? Create a ticket and our support team will assist you!`
+  </Card>
+  
+  <Card title="Ban Appeals" icon="gavel">
+    **Setup**: Separate category for appeals
+    
+    Configure appeal link:
+    ```bash
+    /appeals https://forms.example.com/appeal
+    ```
+    
+    Banned users receive the link via DM
+  </Card>
+  
+  <Card title="Partner Applications" icon="handshake">
+    **Setup**: Dedicated partner ticket channel
+    
+    Pin instructions in channel:
+    - Partnership requirements
+    - Information to provide
+    - Expected response time
+    
+    `/ticket description Thank you for your partnership interest! Please provide: server invite, member count, and what you can offer.`
+  </Card>
+  
+  <Card title="Bug Reports" icon="bug">
+    **Setup**: Thread-based tickets for organization
+    
+    Include in description:
+    - What information to provide
+    - How to reproduce
+    - Screenshots/evidence
+    
+    `/ticket description Please describe the bug: What happened? What did you expect? Include screenshots if possible.`
+  </Card>
+</CardGroup>
+
+## Advanced Configuration
+
+### Multiple Ticket Categories
+
+For larger servers, set up different ticket types:
+
+1. **General Support** - `/ticket enable category:Support`
+2. **Appeals** - Separate appeal system
+3. **Reports** - User reports and issues
+
+Use different channels/categories for organization:
+
+```bash
+/ticket enable category:General Support
+```
+
+<Note>
+  Fire currently supports one ticket configuration per server, but you can change the category as needed.
+</Note>
+
+### Ticket Archiving
+
+Fire can archive closed tickets instead of deleting them:
+
+1. Create an "Archived Tickets" category
+2. Set permissions so only admins can view
+3. Configure Fire to move closed tickets there
+
+This preserves ticket history for review.
+
+### Integration with Logging
+
+Ensure ticket actions are logged:
+
+```bash
+/logging configure action:#mod-logs
+```
+
+This logs:
+- Ticket creation
+- Ticket closure
+- Members added/removed
+- Configuration changes
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Members can't create tickets">
+    **Possible causes:**
+    1. Member has reached ticket limit - increase with `/ticket limit`
+    2. Tickets are toggled off - enable with `/ticket toggle on`
+    3. Fire lacks permissions - ensure Fire can manage channels and roles
+    4. Member is blacklisted - check with `/blacklist list`
+  </Accordion>
+
+  <Accordion title="Fire creates tickets in wrong location">
+    1. Verify ticket configuration: `/ticket list` shows current settings
+    2. Re-run enable command: `/ticket enable category:Correct Category`
+    3. Ensure Fire can view and access the category
+    4. Check category permissions allow Fire to manage channels
+  </Accordion>
+
+  <Accordion title="Tickets aren't private / wrong people can see them">
+    1. For **channel-based tickets**: Check category permissions - `@everyone` should not have **View Channel**
+    2. For **thread-based tickets**: Threads are automatically private to participants
+    3. Add support roles: `/ticket invitable role:@Support`
+    4. Fire's role needs **Manage Channels** and **Manage Roles** to set permissions
+  </Accordion>
+
+  <Accordion title="/close command doesn't work">
+    1. Ensure you're in a ticket channel/thread
+    2. Fire needs **Manage Channels** permission
+    3. Only ticket creator and staff can close tickets
+    4. Check if channel/thread is actually a Fire ticket (created via `/new`)
+  </Accordion>
+
+  <Accordion title="Members are creating too many tickets">
+    **Solutions:**
+    1. Lower the limit: `/ticket limit 1`
+    2. Temporarily disable: `/ticket toggle off`
+    3. Add a cooldown (Premium feature)
+    4. Blacklist abusive users from creating tickets
+  </Accordion>
+
+  <Accordion title="Ticket alerts aren't working">
+    1. Verify alert is configured: `/ticket alert role:@Support`
+    2. Ensure Fire can mention the role (role must be mentionable or Fire needs Mention All Roles permission)
+    3. Check that alert channel exists and Fire can send messages
+    4. Alerts may be delayed during high ticket volume
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices Summary
+
+<CardGroup cols={2}>
+  <Card title="For Setup" icon="wrench">
+    ✅ Use a dedicated category or channel
+    
+    ✅ Set proper permissions on the category
+    
+    ✅ Configure ticket limit (1-2 recommended)
+    
+    ✅ Set up ticket alerts for staff
+    
+    ✅ Test ticket creation and closure
+  </Card>
+  
+  <Card title="For Management" icon="clipboard-check">
+    ✅ Respond to tickets within 24 hours
+    
+    ✅ Always include closure reasons
+    
+    ✅ Use tags for common responses
+    
+    ✅ Add notes for staff context
+    
+    ✅ Review ticket logs regularly
+  </Card>
+  
+  <Card title="For Members" icon="user">
+    ✅ Post clear instructions in ticket channel
+    
+    ✅ Set expectations for response time
+    
+    ✅ Include guidelines for ticket usage
+    
+    ✅ Provide examples of good tickets
+    
+    ✅ Link to FAQ or common issues
+  </Card>
+  
+  <Card title="For Organization" icon="folder">
+    ✅ Use thread-based tickets for cleaner server
+    
+    ✅ Archive tickets instead of deleting
+    
+    ✅ Enable action logging
+    
+    ✅ Separate ticket types by category
+    
+    ✅ Review and update ticket description regularly
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Moderation Setup" icon="shield" href="/guides/moderation-setup">
+    Enhance your ticket system with moderation features
+  </Card>
+  
+  <Card title="Custom Commands" icon="code" href="/guides/custom-commands">
+    Create custom responses using tags
+  </Card>
+  
+  <Card title="Premium Features" icon="crown" href="/guides/premium-features">
+    Unlock ticket analytics and advanced features
+  </Card>
+</CardGroup>

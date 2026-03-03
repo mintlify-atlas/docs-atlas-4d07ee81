@@ -1,0 +1,402 @@
+---
+title: Utility Commands
+description: Useful tools and information commands
+icon: wrench
+---
+
+## Overview
+
+Utility commands provide helpful tools for managing your server and getting information about users, messages, and Discord entities.
+
+## User Information
+
+### User
+
+Get detailed information about a user or member.
+
+**Command:** `/user`
+
+<ParamField path="user" type="User/Member">
+  The user to get information about. Defaults to yourself.
+</ParamField>
+
+**Information Displayed:**
+- User mention and display name
+- Account creation date
+- User badges (Nitro, Bot, Staff, etc.)
+- Server join date (if in a server)
+- Server nickname
+- Roles (for members)
+- Key permissions
+- Bot information (if applicable)
+  - Privacy policy and Terms of Service links
+  - Required intents
+  - Invite link
+
+**Example:**
+```
+/user
+/user user:@Someone
+```
+
+<Note>
+This command also works as `/snowflake` to decode Discord IDs and see what they represent.
+</Note>
+
+---
+
+### Avatar
+
+Get a user's avatar in high resolution.
+
+**Command:** `/avatar`
+
+<ParamField path="user" type="User/Member">
+  The user whose avatar to display. Defaults to yourself.
+</ParamField>
+
+**Example:**
+```
+/avatar user:@Someone
+```
+
+<Note>
+If a member has a server-specific avatar, you'll see a button to toggle to their global avatar.
+</Note>
+
+---
+
+### Server
+
+Get information about the current server.
+
+**Command:** `/server`
+
+Displays:
+- Server name and icon
+- Owner information
+- Creation date
+- Member count
+- Boost level and boost count
+- Server features
+- Channel and role counts
+
+---
+
+## Message Tools
+
+### Quote
+
+Quote messages from other channels (including private channels you can access).
+
+**Usage:** Right-click a message → Apps → "Save to quote"
+
+This context menu command saves messages you can't normally quote, allowing you to quote them later in channels where you have permission.
+
+**Limits:**
+- Free users: 5 saved quotes
+- Premium users: 10 saved quotes
+
+<Note>
+Saved quotes expire after 1 minute.
+</Note>
+
+---
+
+### Embed
+
+Create and manage custom embeds.
+
+**Commands:**
+- `/embed-create` - Create a new embed
+- `/embed-edit` - Edit an existing embed
+- `/embed-send` - Send an embed to a channel
+- `/embed-delete` - Delete a saved embed
+
+**Required Permissions:**
+- Bot: Embed Links
+
+---
+
+## Reminders
+
+Set reminders for yourself.
+
+### Create Reminder
+
+**Command:** `/reminders-create`
+
+<ParamField path="time" type="Time Duration" required>
+  When to remind you (e.g., "2h", "1d", "30m")
+</ParamField>
+
+<ParamField path="reminder" type="String" required>
+  What to remind you about
+</ParamField>
+
+**Example:**
+```
+/reminders-create time:2h reminder:Check the oven
+```
+
+---
+
+### List Reminders
+
+**Command:** `/reminders-list`
+
+View all your active reminders.
+
+---
+
+### Delete Reminder
+
+**Command:** `/reminders-delete`
+
+<ParamField path="id" type="String" required>
+  The reminder ID to delete (shown in list)
+</ParamField>
+
+---
+
+### Set Timezone
+
+**Command:** `/reminders-timezone`
+
+<ParamField path="timezone" type="String" required>
+  Your timezone (e.g., "America/New_York", "Europe/London")
+</ParamField>
+
+---
+
+## Discord Utilities
+
+### Snowflake
+
+Decode a Discord snowflake ID to see information about it.
+
+**Command:** `/user` with a snowflake ID
+
+Shows:
+- Creation timestamp
+- Worker ID and Process ID
+- What the snowflake represents (user, channel, guild, message, etc.)
+
+**Example:**
+```
+/user user:234567890123456789
+```
+
+---
+
+### Inviteinfo
+
+Get information about a Discord invite.
+
+**Command:** `/inviteinfo`
+
+<ParamField path="invite" type="String" required>
+  The invite code or URL
+</ParamField>
+
+Shows:
+- Server name and icon
+- Channel the invite leads to
+- Approximate member counts
+- Invite expiration
+- Inviter (if available)
+
+---
+
+### Time
+
+Convert timestamps and see times in different formats.
+
+**Commands:**
+- `/time-stamp` - Generate Discord timestamp formatting
+- `/time-zone` - Convert time between timezones
+
+---
+
+## Minecraft Utilities
+
+### Minecraft UUID
+
+Get a player's UUID from their username.
+
+**Command:** `/minecraft-uuid`
+
+<ParamField path="username" type="String" required>
+  The Minecraft username
+</ParamField>
+
+---
+
+### Minecraft Skin
+
+View a Minecraft player's skin.
+
+**Command:** `/minecraft-skin`
+
+<ParamField path="username" type="String" required>
+  The Minecraft username
+</ParamField>
+
+---
+
+### Minecraft Log Scan
+
+Analyze Minecraft server logs for issues.
+
+**Commands:**
+- `/minecraft-log-scan` - Analyze a log file
+- `/minecraft-check-log` - Quick check for common issues
+
+---
+
+## Vanity URLs
+
+Create custom short links for your server.
+
+<Note>
+Vanity URLs require Fire Premium.
+</Note>
+
+### Create Vanity
+
+**Command:** `/vanity-create`
+
+<ParamField path="code" type="String" required>
+  The custom vanity code (e.g., "myserver")
+</ParamField>
+
+<ParamField path="invite" type="String" required>
+  The Discord invite to redirect to
+</ParamField>
+
+Creates a short URL like `inv.wtf/myserver`
+
+---
+
+### View Vanity
+
+**Command:** `/vanity-view`
+
+View your server's vanity URLs.
+
+---
+
+### Delete Vanity
+
+**Command:** `/vanity-delete`
+
+<ParamField path="code" type="String" required>
+  The vanity code to delete
+</ParamField>
+
+---
+
+## Permission Utilities
+
+### Permroles
+
+Manage permission-based role assignment.
+
+**Command:** `/permroles`
+
+---
+
+### Emojilock
+
+Lock emojis to specific roles.
+
+**Command:** `/emojilock`
+
+<ParamField path="emoji" type="Emoji" required>
+  The emoji to lock
+</ParamField>
+
+<ParamField path="roles" type="Roles" required>
+  Roles that can use the emoji
+</ParamField>
+
+---
+
+## Developer Tools
+
+### Code Image
+
+Create syntax-highlighted code images.
+
+**Command:** `/code-image`
+
+<ParamField path="code" type="String" required>
+  The code to highlight
+</ParamField>
+
+<ParamField path="language" type="String">
+  Programming language for syntax highlighting
+</ParamField>
+
+---
+
+### Debug
+
+Get debug information (superuser only).
+
+**Command:** `/debug`
+
+---
+
+## Status Commands
+
+### Discord Status
+
+Check Discord's current status.
+
+**Command:** `/dstatus`
+
+Shows:
+- Current incidents
+- API status
+- Service health
+
+---
+
+### Icon
+
+Get the server's icon in high resolution.
+
+**Command:** `/icon`
+
+---
+
+## Slowmode Sync
+
+Sync slowmode settings across channels.
+
+**Command:** `/slowmode-sync`
+
+Useful for maintaining consistent slowmode across multiple channels.
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Reminders Wisely">
+    Set reminders for important tasks and events. Remember that reminders are personal and only you can see them.
+  </Accordion>
+  
+  <Accordion title="Snowflake Decoder">
+    Use the snowflake decoder to verify user IDs before banning, or to check when accounts were created.
+  </Accordion>
+  
+  <Accordion title="Quote Responsibly">
+    Only quote messages you have permission to view. Don't use quotes to leak private information.
+  </Accordion>
+  
+  <Accordion title="Vanity URLs">
+    Choose memorable vanity URLs that represent your community well. They're permanent once claimed.
+  </Accordion>
+</AccordionGroup>

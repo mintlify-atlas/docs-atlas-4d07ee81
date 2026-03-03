@@ -1,0 +1,396 @@
+---
+title: Support ticket system
+description: Set up a professional support ticket system for your Discord server
+---
+
+Fire's ticket system allows you to create a professional support workflow where members can open private tickets to get help from your team. Each ticket is a private channel visible only to the member and your support staff.
+
+## What is the ticket system?
+
+The ticket system creates a structured way for members to:
+- Request support privately
+- Report issues or problems
+- Apply for server positions
+- Submit appeals or complaints
+- Get individual assistance from your team
+
+**Benefits:**
+- Organized support workflow
+- Private conversations with members
+- Dedicated channels for each request
+- Easy for staff to manage multiple tickets
+- Automatic ticket logging and archiving
+
+## Setting up tickets
+
+### Enable the ticket system
+
+```bash
+/ticket enable category:"Support Tickets" channel:#open-ticket
+```
+
+**Parameters:**
+- `category` - The category where ticket channels will be created
+- `channel` - The channel where members click a button to open tickets
+
+<Steps>
+  <Step title="Create a category">
+    First, create a category in your server called "Support Tickets" (or any name you prefer).
+  </Step>
+  
+  <Step title="Create a ticket channel">
+    Create a channel (e.g., #open-ticket) where members will open tickets.
+  </Step>
+  
+  <Step title="Run the enable command">
+    Use `/ticket enable` to set up the system with your category and channel.
+  </Step>
+  
+  <Step title="Customize the message">
+    Fire will send a message with a button in the ticket channel. Members click this button to open tickets.
+  </Step>
+</Steps>
+
+<Note>
+Make sure Fire has permissions to create channels in the category and manage permissions in those channels.
+</Note>
+
+### Configure ticket settings
+
+<Tabs>
+  <Tab title="Ticket limit">
+    ### Set maximum tickets per user
+    
+    Prevent spam by limiting how many tickets each member can have open.
+    
+    ```bash
+    /ticket limit number:3
+    ```
+    
+    This allows each member to have up to 3 open tickets at once.
+    
+    <Info>
+    The default limit is 1 ticket per user. Adjust this based on your server's needs.
+    </Info>
+  </Tab>
+  
+  <Tab title="Ticket name">
+    ### Customize ticket names
+    
+    Set the naming format for ticket channels.
+    
+    ```bash
+    /ticket name format:"ticket-{id}"
+    ```
+    
+    **Available placeholders:**
+    - `{id}` - Ticket number
+    - `{user}` - Username
+    - `{tag}` - User#0000 format (legacy)
+    
+    **Examples:**
+    - `ticket-{id}` → ticket-001
+    - `{user}-support` → john-support
+    - `help-{id}` → help-042
+  </Tab>
+  
+  <Tab title="Description">
+    ### Set ticket description
+    
+    Customize the message shown in the ticket opening panel.
+    
+    ```bash
+    /ticket description text:"Click the button below to open a support ticket. Our team will assist you shortly!"
+    ```
+    
+    This text appears above the "Open Ticket" button.
+  </Tab>
+  
+  <Tab title="Alert role">
+    ### Set alert role
+    
+    Ping a role when new tickets are opened.
+    
+    ```bash
+    /ticket alert role:@Support
+    ```
+    
+    The specified role will be mentioned when someone opens a ticket.
+    
+    <Warning>
+    Make sure the role is mentionable, or Fire won't be able to ping it.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Managing tickets
+
+### Opening a ticket
+
+Members open tickets by clicking the button in your designated ticket channel. Fire will:
+
+1. Create a new private channel
+2. Give the member access to the channel
+3. Give your support team access
+4. Ping the alert role (if configured)
+5. Send a welcome message
+
+### Working with tickets
+
+<Tabs>
+  <Tab title="Close">
+    ### Close a ticket
+    
+    Mark a ticket as resolved and archive it.
+    
+    ```bash
+    /ticket close reason:"Issue resolved"
+    ```
+    
+    **Options:**
+    - `reason` - Why the ticket is being closed (optional)
+    
+    When a ticket is closed:
+    - The channel is deleted
+    - A transcript may be saved (if configured)
+    - The member can open a new ticket
+    
+    <Info>
+    Only support staff and the ticket creator can close tickets.
+    </Info>
+  </Tab>
+  
+  <Tab title="Add members">
+    ### Add someone to a ticket
+    
+    Bring another staff member or user into the ticket.
+    
+    ```bash
+    /ticket add user:@username
+    ```
+    
+    This gives the user access to view and send messages in the ticket channel.
+  </Tab>
+  
+  <Tab title="Remove members">
+    ### Remove someone from a ticket
+    
+    Remove a user's access to a ticket.
+    
+    ```bash
+    /ticket remove user:@username
+    ```
+    
+    The user will no longer be able to see or access the ticket channel.
+  </Tab>
+  
+  <Tab title="List tickets">
+    ### View all tickets
+    
+    See a list of all open tickets.
+    
+    ```bash
+    /ticket list
+    ```
+    
+    Shows:
+    - Ticket channel name
+    - Who created it
+    - When it was opened
+    - Current status
+  </Tab>
+</Tabs>
+
+## Advanced settings
+
+### Toggle ticket system
+
+Temporarily disable ticket creation without removing the system.
+
+```bash
+/ticket toggle
+```
+
+This prevents members from opening new tickets while keeping existing tickets active.
+
+<Accordion title="When would I disable tickets?">
+Disable tickets temporarily during:
+- Major server events when staff is busy
+- Server maintenance
+- Staff meetings
+- Times when you can't handle support requests
+</Accordion>
+
+### Invitable tickets
+
+Allow ticket creators to invite their friends to their tickets.
+
+```bash
+/ticket invitable
+```
+
+When enabled, members can use `/ticket add` in their own tickets to invite others.
+
+<Warning>
+Be cautious with this setting - it allows members to bring others into private conversations with your staff.
+</Warning>
+
+### View ticket info
+
+Get help with ticket commands.
+
+```bash
+/ticket help
+```
+
+Shows all available ticket commands and their usage.
+
+## Ticket workflow example
+
+<Steps>
+  <Step title="Member opens ticket">
+    User clicks "Open Ticket" button in #open-ticket channel.
+  </Step>
+  
+  <Step title="Private channel created">
+    Fire creates a private channel (e.g., ticket-001) and pings @Support role.
+  </Step>
+  
+  <Step title="Support responds">
+    Support staff member responds to the ticket and helps the user.
+  </Step>
+  
+  <Step title="Add specialist if needed">
+    If specialized help is needed, use `/ticket add` to bring in another staff member.
+  </Step>
+  
+  <Step title="Close when resolved">
+    Once the issue is resolved, use `/ticket close` to close and archive the ticket.
+  </Step>
+</Steps>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Clear guidelines" icon="book">
+    Create a tag or embed explaining when and how to use tickets.
+  </Card>
+  
+  <Card title="Quick responses" icon="gauge-high">
+    Try to respond to new tickets within a few minutes to show you care.
+  </Card>
+  
+  <Card title="Professional tone" icon="user-tie">
+    Train your support team to be friendly and professional in tickets.
+  </Card>
+  
+  <Card title="Close resolved tickets" icon="check">
+    Don't let old tickets pile up - close them when issues are resolved.
+  </Card>
+  
+  <Card title="Use ticket reasons" icon="clipboard">
+    Always include a reason when closing tickets for better record-keeping.
+  </Card>
+  
+  <Card title="Set expectations" icon="clock">
+    Let members know your typical response time in the ticket description.
+  </Card>
+</CardGroup>
+
+## Ticket permissions
+
+### Required bot permissions
+
+Fire needs these permissions in the ticket category:
+
+- **Manage Channels** - To create and delete ticket channels
+- **View Channels** - To see ticket channels
+- **Send Messages** - To send messages in tickets
+- **Embed Links** - To send formatted messages
+- **Manage Permissions** - To control who can see each ticket
+
+### Staff permissions
+
+Your support team should have:
+
+- **Manage Server** permission, OR
+- A role that's configured as a moderator via `/moderators add`
+
+These permissions allow them to:
+- See all tickets
+- Add/remove users from tickets
+- Close tickets
+- Configure ticket settings
+
+## Common use cases
+
+### Support tickets
+
+Members can get help with:
+- Account issues
+- Technical problems
+- Questions about server features
+- Reporting bugs
+
+### Applications
+
+Use tickets for:
+- Staff applications
+- Partnership requests
+- Content creator applications
+- VIP/premium role requests
+
+### Reports
+
+Handle sensitive reports via tickets:
+- User behavior reports
+- Rule violation reports
+- Bug reports
+- Suggestions (if you prefer private submissions)
+
+### Appeals
+
+Allow members to appeal:
+- Bans or kicks
+- Mutes or warnings
+- Role removals
+- Other moderation actions
+
+<Info>
+Fire also has a dedicated `/appeals` system for ban appeals that works separately from tickets.
+</Info>
+
+## Troubleshooting
+
+<Accordion title="Button not appearing?">
+Make sure Fire has permission to send messages and embed links in the ticket channel. Try running `/ticket enable` again.
+</Accordion>
+
+<Accordion title="Can't create ticket channels?">
+Check that Fire has "Manage Channels" permission in the ticket category. Also verify the category isn't full (Discord has a 50 channel limit per category).
+</Accordion>
+
+<Accordion title="Support staff can't see tickets?">
+Make sure your support staff have the "Manage Server" permission or have been added as moderators using `/moderators add`.
+</Accordion>
+
+<Accordion title="Members can't open tickets?">
+Check if the ticket system is toggled off using `/ticket toggle`. Also verify the member hasn't reached their ticket limit.
+</Accordion>
+
+## Command summary
+
+| Command | Description | Required Permission |
+|---------|-------------|---------------------|
+| `/ticket enable` | Set up the ticket system | Manage Server |
+| `/ticket toggle` | Enable/disable ticket creation | Manage Server |
+| `/ticket limit` | Set max tickets per user | Manage Server |
+| `/ticket name` | Set ticket naming format | Manage Server |
+| `/ticket description` | Set ticket panel description | Manage Server |
+| `/ticket alert` | Set role to ping on new tickets | Manage Server |
+| `/ticket invitable` | Allow members to invite to their tickets | Manage Server |
+| `/ticket close` | Close a ticket | Manage Server / Moderator |
+| `/ticket add` | Add user to ticket | Manage Server / Moderator |
+| `/ticket remove` | Remove user from ticket | Manage Server / Moderator |
+| `/ticket list` | List all open tickets | Manage Server / Moderator |
+| `/ticket help` | Get ticket command help | Everyone |

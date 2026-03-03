@@ -1,0 +1,424 @@
+---
+title: Custom Commands & Tags
+description: Create powerful custom commands and automated responses
+icon: code
+---
+
+Tags are Fire's custom command system, allowing you to create reusable text responses, embeds, and automated replies. This guide covers everything from basic tags to advanced slash command integration.
+
+## Tag Basics
+
+### Creating Your First Tag
+
+<Steps>
+  <Step title="Create a tag">
+    ```bash
+    /tag create welcome Welcome to our server! Please read the rules.
+    ```
+  </Step>
+  <Step title="Use the tag">
+    ```bash
+    /tag welcome
+    # or simply: !welcome (if using prefix commands)
+    ```
+  </Step>
+  <Step title="List all tags">
+    ```bash
+    /tag
+    # Shows all available tags in the server
+    ```
+  </Step>
+</Steps>
+
+<Note>
+**Tag Name Requirements:** (src/commands/Tags/create.ts:7-8)
+- 1-32 characters
+- Letters, numbers, hyphens, underscores only
+- Cannot match existing Fire command names (e.g., cannot name a tag "ban")
+</Note>
+
+### Tag Management Commands
+
+<CodeGroup>
+```bash View Tag Content
+/tag view <name>
+# See the raw content without triggering the tag
+```
+
+```bash Edit Tag
+/tag edit <name> <new content>
+# Update existing tag content
+```
+
+```bash Delete Tag
+/tag delete <name>
+# Permanently remove a tag
+```
+
+```bash Tag Information
+/tag info <name>
+# View creator, usage count, and creation date
+```
+
+```bash Raw Tag Content
+/tag raw <name>
+# View tag content with all formatting visible
+```
+</CodeGroup>
+
+## Advanced Tag Features
+
+### Tag Aliases
+
+Create multiple names for the same tag:
+
+```bash
+/tag alias <original-tag> <alias-name>
+```
+
+**Example:**
+```bash
+/tag create serverrules Please follow our community guidelines...
+/tag alias serverrules rules
+/tag alias serverrules guidelines
+
+# Now all three commands work:
+# /tag serverrules | /tag rules | /tag guidelines
+```
+
+<Tip>
+Aliases don't count toward your tag limit. Create descriptive aliases to make tags easier to discover.
+</Tip>
+
+### Slash Command Integration
+
+Convert your tags into native Discord slash commands:
+
+```bash
+/tag slash
+# Toggles slash command mode for tags
+```
+
+**When enabled:**
+- All tags appear as native Discord slash commands
+- Members see tag suggestions when typing `/`
+- Better discoverability for new members
+- Professional appearance
+
+<Warning>
+**Requirements for slash commands:**
+- All tag names must be valid (alphanumeric, hyphens, underscores)
+- Fire needs proper permissions
+- There's a cooldown of 10 minutes between enabling/disabling
+
+Invalid tag names will prevent slash command activation. Fix names first:
+src/commands/Tags/slash.ts:63-69
+</Warning>
+
+**Ephemeral Slash Tags:**
+```bash
+/tag slash ephemeral
+# Toggle whether tag responses are visible only to the user
+```
+
+### Delete-on-Tag (dtag)
+
+Automatically delete the command message when using a tag:
+
+```bash
+# Use dtag prefix instead of tag
+/dtag welcome
+!dtag rules
+
+# Your command message is deleted, only tag response remains
+```
+
+<Tip>
+**Perfect for:**
+- Keeping channels clean
+- Info commands in help channels
+- Quick responses without clutter
+- Professional appearance
+</Tip>
+
+## Tag Content Formatting
+
+### Text Formatting
+
+Tags support full Discord markdown:
+
+```markdown
+**bold text**
+*italic text*
+__underline__
+~~strikethrough~~
+||spoiler||
+`code`
+```code block```
+> quote
+```
+
+### Mentions and References
+
+```bash
+# Tags can include:
+@User mentions
+@Role mentions
+#Channel mentions
+<:emoji:id> custom emojis
+```
+
+<Warning>
+Mentions in tags will actually ping users/roles. Use with caution or consider using escaped mentions: `\@Role` to display without pinging.
+</Warning>
+
+### Embeds in Tags
+
+Fire tags support embedded content for richer responses. While embeds are created separately, they can be attached to tags for professional-looking messages.
+
+<Tip>
+Embeds make tags more visually appealing. Use them for:
+- Server rules and guidelines
+- FAQ responses
+- Welcome messages
+- Information panels
+</Tip>
+
+## Tag Limitations
+
+<AccordionGroup>
+  <Accordion title="Free vs Premium Servers">
+    **Free Servers:**
+    - Maximum 20 tags (src/commands/Tags/create.ts:74-75)
+    
+    **Premium Servers:**
+    - Unlimited tags
+    - Edit tags beyond position 20 in the list
+  </Accordion>
+
+  <Accordion title="Content Length">
+    - Maximum 2,000 characters per tag (src/commands/Tags/create.ts:58-59)
+    - Same as Discord's message limit
+    - Embeds don't count toward this limit
+  </Accordion>
+
+  <Accordion title="Permissions">
+    **Creating/Editing/Deleting tags:**
+    - Requires `Manage Messages` permission
+    
+    **Using tags:**
+    - Available to all server members
+    - Can be restricted by channel permissions
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+### Naming Conventions
+
+<CardGroup cols={2}>
+  <Card title="Use Clear Names" icon="tag">
+    Choose descriptive, memorable names:
+    - ✅ `serverinfo`, `apply`, `rules`
+    - ❌ `info1`, `tag2`, `xyz`
+  </Card>
+  
+  <Card title="Consistent Style" icon="palette">
+    Pick a naming pattern and stick to it:
+    - Lowercase: `faqhelp`
+    - Hyphenated: `faq-help`
+    - Camelcase: `faqHelp`
+  </Card>
+</CardGroup>
+
+### Tag Organization Strategy
+
+<Steps>
+  <Step title="Categorize Tags">
+    Group related tags with prefixes:
+    - `faq-roles`, `faq-bots`, `faq-rules`
+    - `apply-staff`, `apply-partner`
+    - `info-voice`, `info-premium`
+  </Step>
+  
+  <Step title="Create Common Aliases">
+    Add intuitive shortcuts:
+    - `serverinfo` → `si`, `server`, `info`
+    - `frequently-asked` → `faq`, `questions`
+  </Step>
+  
+  <Step title="Document Tags">
+    Keep a list of tags for moderators:
+    ```bash
+    /tag list
+    # Copy to a staff channel for reference
+    ```
+  </Step>
+</Steps>
+
+### Content Writing Tips
+
+<Tip>
+**Effective Tag Content:**
+
+1. **Be concise** - Get to the point quickly
+2. **Use formatting** - Bold key information, use line breaks
+3. **Include links** - Direct members to relevant resources
+4. **Stay updated** - Review and update tags regularly
+5. **Test thoroughly** - Verify mentions, links, and formatting work
+</Tip>
+
+**Example Well-Written Tag:**
+```
+**How to Apply for Staff**
+
+We're always looking for helpful members! Here's how to apply:
+
+1. Be active for at least 2 weeks
+2. Have no recent warnings
+3. Fill out the form: https://example.com/staff-application
+
+Questions? Ask in #support
+```
+
+### Workflow Automation
+
+<AccordionGroup>
+  <Accordion title="Support Channel Tags">
+    Create quick-answer tags for common questions:
+    - `howtoticket` - Instructions for ticket system
+    - `reportuser` - How to report rule violations
+    - `boostperks` - Server boost benefits
+  </Accordion>
+
+  <Accordion title="Welcome & Onboarding">
+    Streamline new member experience:
+    - `welcome` - Welcome message with server tour
+    - `getstarted` - First steps in the server
+    - `roles` - How to get roles
+  </Accordion>
+
+  <Accordion title="Moderation Shortcuts">
+    Speed up common mod responses:
+    - `warned` - Explanation after warning
+    - `slowmode` - Why slowmode is enabled
+    - `locked` - Channel lock announcement
+  </Accordion>
+</AccordionGroup>
+
+## Tag Monitoring
+
+### Check Tag Usage
+
+```bash
+/tag info <name>
+```
+
+Reviews tag information including:
+- Total uses
+- Creator
+- Creation date
+- Last modified
+
+<Tip>
+Regularly review tag usage statistics to:
+- Identify most useful tags
+- Find outdated or unused tags
+- Optimize your tag library
+- Update frequently-used tags with better content
+</Tip>
+
+### Maintenance Routine
+
+<Steps>
+  <Step title="Monthly Review">
+    Check all tags for outdated information, broken links, or deprecated content.
+  </Step>
+  
+  <Step title="Usage Analysis">
+    Use `/tag info` on each tag to see which are most used. Consider removing tags with zero usage after 3+ months.
+  </Step>
+  
+  <Step title="Content Updates">
+    Update tags to reflect:
+    - New server rules
+    - Channel changes
+    - Role updates
+    - Event information
+  </Step>
+</Steps>
+
+## Advanced Use Cases
+
+### Interactive Reply Tags
+
+When you reply to a message while using a tag, Fire will reply to that message:
+
+```bash
+# Someone asks: "How do I get verified?"
+# Reply to their message with: /tag verified
+# Fire replies to them with the verified tag content
+```
+
+### Multi-Language Support
+
+Create language-specific tags:
+
+```bash
+/tag create welcome-en Welcome to our server!
+/tag create welcome-es ¡Bienvenido a nuestro servidor!
+/tag create welcome-fr Bienvenue sur notre serveur!
+```
+
+### Template Tags
+
+Create reusable templates for announcements:
+
+```bash
+/tag create event-template
+**Event Name:** [NAME]
+**Date:** [DATE]
+**Time:** [TIME]
+**Location:** [CHANNEL]
+
+React with ✅ to RSVP!
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tag not working">
+    **Check:**
+    - Tag name is spelled correctly
+    - Tag exists: `/tag list`
+    - Fire has permissions to send messages
+    - You're using the right prefix or slash command
+  </Accordion>
+
+  <Accordion title="Cannot create tag">
+    **Verify:**
+    - You have `Manage Messages` permission
+    - Tag name follows naming rules
+    - Free servers: You haven't hit the 20 tag limit
+    - Name doesn't conflict with Fire commands
+  </Accordion>
+
+  <Accordion title="Slash commands not showing tags">
+    **Ensure:**
+    - Slash mode is enabled: `/tag slash`
+    - All tag names are valid (alphanumeric, hyphens, underscores)
+    - Wait a few minutes for Discord to update
+    - Fire has required permissions
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Premium Features" icon="crown" href="/guides/premium-features">
+    Unlock unlimited tags and more
+  </Card>
+  <Card title="Best Practices" icon="list-check" href="/guides/best-practices">
+    Optimize server management
+  </Card>
+</CardGroup>

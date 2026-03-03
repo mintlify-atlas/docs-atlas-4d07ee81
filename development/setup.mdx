@@ -1,0 +1,418 @@
+---
+title: Development Environment Setup
+description: Set up your local environment to develop Fire Discord Bot
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+### Required Software
+
+<AccordionGroup>
+  <Accordion title="Node.js >= 24.13.0">
+    Fire requires Node.js version 24.13.0 or higher.
+    
+    **Install Node.js:**
+    ```bash
+    # Using nvm (recommended)
+    nvm install 24.13.0
+    nvm use 24.13.0
+    
+    # Or download from nodejs.org
+    ```
+    
+    **Verify installation:**
+    ```bash
+    node --version
+    # Should output v24.13.0 or higher
+    ```
+  </Accordion>
+  
+  <Accordion title="pnpm Package Manager">
+    Fire uses pnpm for dependency management.
+    
+    **Install pnpm:**
+    ```bash
+    npm install -g pnpm
+    ```
+    
+    **Verify installation:**
+    ```bash
+    pnpm --version
+    ```
+  </Accordion>
+  
+  <Accordion title="PostgreSQL Database">
+    Fire uses PostgreSQL for data persistence.
+    
+    **Install PostgreSQL:**
+    ```bash
+    # Ubuntu/Debian
+    sudo apt-get install postgresql postgresql-contrib
+    
+    # macOS with Homebrew
+    brew install postgresql
+    
+    # Windows
+    # Download from postgresql.org
+    ```
+    
+    **Start PostgreSQL:**
+    ```bash
+    # Ubuntu/Debian
+    sudo systemctl start postgresql
+    
+    # macOS
+    brew services start postgresql
+    ```
+  </Accordion>
+  
+  <Accordion title="Git">
+    Version control for the codebase.
+    
+    ```bash
+    git --version
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Initial Setup
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the Fire repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/FireDiscordBot/bot.git
+    cd bot
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    Install all required npm packages:
+    
+    ```bash
+    pnpm install
+    ```
+    
+    This will install:
+    - TypeScript and type definitions
+    - Discord.js (Fire's custom fork)
+    - Discord Akairo framework
+    - Database drivers
+    - All other dependencies from package.json:29-58
+  </Step>
+  
+  <Step title="Configure Database">
+    Create a PostgreSQL database for Fire:
+    
+    ```bash
+    # Connect to PostgreSQL
+    psql -U postgres
+    
+    # Create database and user
+    CREATE DATABASE fire_dev;
+    CREATE USER fire_user WITH PASSWORD 'your_password';
+    GRANT ALL PRIVILEGES ON DATABASE fire_dev TO fire_user;
+    ```
+  </Step>
+  
+  <Step title="Set Up Environment Variables">
+    Create a `.env` file in the project root:
+    
+    ```bash .env
+    # Discord Bot Configuration
+    DISCORD_TOKEN=your_bot_token_here
+    DISCORD_CLIENT_ID=your_client_id_here
+    
+    # Database Configuration
+    POSTGRES_HOST=localhost
+    POSTGRES_USER=fire_user
+    POSTGRES_PASS=your_password
+    POSTGRES_DB=fire_dev
+    
+    # Optional: Special prefix for testing
+    SPECIAL_PREFIX=!
+    
+    # Optional: WebSocket authentication
+    WS_AUTH=your_ws_auth_token
+    ```
+    
+    <Note>
+    Get your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
+    </Note>
+  </Step>
+  
+  <Step title="Create Discord Bot Application">
+    <Steps>
+      <Step title="Go to Discord Developer Portal">
+        Visit [discord.com/developers/applications](https://discord.com/developers/applications)
+      </Step>
+      
+      <Step title="Create New Application">
+        Click "New Application" and give it a name
+      </Step>
+      
+      <Step title="Create Bot User">
+        - Go to the "Bot" section
+        - Click "Add Bot"
+        - Copy the bot token (needed for `.env`)
+      </Step>
+      
+      <Step title="Enable Intents">
+        Enable the following Privileged Gateway Intents:
+        - Server Members Intent
+        - Message Content Intent
+        - Presence Intent
+      </Step>
+      
+      <Step title="Invite Bot to Test Server">
+        Generate an invite URL with appropriate permissions:
+        - Go to OAuth2 > URL Generator
+        - Select scopes: `bot`, `applications.commands`
+        - Select required permissions
+        - Use generated URL to invite bot
+      </Step>
+    </Steps>
+  </Step>
+  
+  <Step title="Compile TypeScript">
+    Compile the TypeScript code to JavaScript:
+    
+    ```bash
+    pnpm compile
+    ```
+    
+    This runs the build script from package.json:17:
+    ```bash
+    rm -rf dist/ && tsc && pnpm gitinfo
+    ```
+    
+    The compiled code will be in the `dist/` directory.
+  </Step>
+  
+  <Step title="Run the Bot">
+    Start Fire in development mode:
+    
+    ```bash
+    pnpm dev
+    ```
+    
+    This will:
+    1. Compile TypeScript (package.json:15)
+    2. Start the bot with source maps enabled (package.json:16)
+    3. Set `NODE_ENV=development`
+    
+    You should see output indicating the bot is connecting to Discord.
+  </Step>
+</Steps>
+
+## Development Scripts
+
+Fire provides several npm scripts for development:
+
+### Available Commands
+
+```json package.json:14-20
+{
+  "dev": "pnpm compile && pnpm rundev",
+  "rundev": "NODE_ENV=development node --enable-source-maps dist/src/index.js",
+  "compile": "rm -rf dist/ && tsc && pnpm gitinfo",
+  "start": "NODE_ENV=production node --enable-source-maps dist/src/index.js",
+  "format": "prettier . --write",
+  "gitinfo": "git rev-parse HEAD > dist/commit.txt && git rev-parse --abbrev-ref HEAD > dist/branch.txt"
+}
+```
+
+<CodeGroup>
+```bash Development
+# Compile and run in development mode
+pnpm dev
+
+# Just run (after compiling)
+pnpm rundev
+```
+
+```bash Production Build
+# Compile TypeScript
+pnpm compile
+
+# Run in production mode
+pnpm start
+```
+
+```bash Code Formatting
+# Format all files with Prettier
+pnpm format
+```
+</CodeGroup>
+
+## TypeScript Configuration
+
+Fire uses a specific TypeScript configuration:
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "outDir": "dist/",
+    "baseUrl": ".",
+    "paths": {
+      "@fire/lib/*": ["lib/*"],
+      "@fire/src/*": ["src/*"],
+      "@fire/config/*": ["config/*"],
+      "@fire/i18n/*": ["languages/*"]
+    }
+  }
+}
+```
+
+### Key Settings
+
+- **target**: ESNext - Uses latest ECMAScript features
+- **module**: CommonJS - Node.js compatibility
+- **sourceMap**: true - Enables debugging with source maps
+- **outDir**: dist/ - Compiled output directory
+- **paths**: Module aliases for cleaner imports
+
+## Project Structure
+
+```
+fire-discord-bot/
+├── src/                    # Source code
+│   ├── commands/          # Bot commands
+│   │   ├── Admin/
+│   │   ├── Configuration/
+│   │   ├── Fun/
+│   │   ├── Main/
+│   │   ├── Moderation/
+│   │   ├── Premium/
+│   │   ├── Starboard/
+│   │   ├── Tags/
+│   │   ├── Tickets/
+│   │   └── Utilities/
+│   ├── modules/           # Background modules
+│   ├── listeners/         # Event listeners
+│   ├── inhibitors/        # Command guards
+│   ├── arguments/         # Custom argument types
+│   └── languages/         # i18n translations
+├── lib/                   # Core library
+│   ├── Fire.ts           # Main bot client
+│   ├── Manager.ts        # Cluster manager
+│   ├── util/             # Utilities
+│   │   ├── command.ts    # Command base class
+│   │   ├── module.ts     # Module base class
+│   │   └── constants.ts  # Constants
+│   └── extensions/       # Discord.js extensions
+├── config/               # Configuration files
+├── languages/            # i18n resources
+├── dist/                 # Compiled output (gitignored)
+├── package.json
+├── tsconfig.json
+└── .env                  # Environment variables (gitignored)
+```
+
+## IDE Setup
+
+### Visual Studio Code (Recommended)
+
+**Recommended Extensions:**
+- ESLint
+- Prettier - Code formatter
+- TypeScript Vue Plugin
+- GitLens
+
+**Settings (.vscode/settings.json):**
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
+```
+
+### WebStorm / IntelliJ IDEA
+
+1. Enable TypeScript support
+2. Configure Prettier as default formatter
+3. Set up Node.js interpreter (v24.13.0+)
+4. Enable "Reformat on Save"
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Module resolution errors">
+    If you see errors like `Cannot find module '@fire/lib/Fire'`:
+    
+    1. Ensure TypeScript paths are configured in tsconfig.json
+    2. Rebuild the project: `pnpm compile`
+    3. Restart your IDE
+  </Accordion>
+  
+  <Accordion title="Database connection errors">
+    If Fire can't connect to PostgreSQL:
+    
+    1. Verify PostgreSQL is running: `sudo systemctl status postgresql`
+    2. Check credentials in `.env` file
+    3. Ensure database exists: `psql -U postgres -l`
+    4. Check lib/Fire.ts:440-471 for connection logic
+  </Accordion>
+  
+  <Accordion title="Discord API errors">
+    If you get 401 Unauthorized:
+    
+    1. Verify `DISCORD_TOKEN` in `.env`
+    2. Ensure token hasn't been regenerated in Developer Portal
+    3. Check bot has required intents enabled
+  </Accordion>
+  
+  <Accordion title="Build errors">
+    If TypeScript compilation fails:
+    
+    1. Delete `dist/` and `node_modules/`
+    2. Run `pnpm install`
+    3. Run `pnpm compile`
+    4. Check for TypeScript version compatibility
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+<CardGroup cols={2}>
+  <Card title="GitHub Issues" icon="github">
+    Report bugs or request features
+  </Card>
+  
+  <Card title="Fire Discord Server" icon="discord">
+    Ask questions in the development channel
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+Now that your environment is set up:
+
+<CardGroup cols={2}>
+  <Card title="Create Commands" icon="code" href="/development/commands">
+    Learn how to create your first command
+  </Card>
+  
+  <Card title="Create Modules" icon="puzzle-piece" href="/development/modules">
+    Build background modules
+  </Card>
+  
+  <Card title="Architecture" icon="diagram-project" href="/development/architecture">
+    Understand the codebase structure
+  </Card>
+</CardGroup>

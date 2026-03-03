@@ -1,0 +1,520 @@
+---
+title: Codebase Architecture
+description: Understanding Fire's architecture and design patterns
+---
+
+## Overview
+
+Fire is built on top of Discord.js and Discord Akairo, using a modular architecture with clear separation of concerns.
+
+## Core Architecture
+
+### Fire Client (lib/Fire.ts)
+
+The `Fire` class extends `AkairoClient` and serves as the main bot instance.
+
+```typescript lib/Fire.ts:99-159
+export class Fire extends AkairoClient {
+  launchTime: number;
+  started: boolean;
+  restPing: number;
+
+  // i18n
+  i18n: typeof i18next.default;
+
+  // Sharding
+  manager: Manager;
+
+  // Logging
+  sentry: typeof Sentry | undefined;
+
+  // Handlers
+  commandHandler: CommandHandler;
+  inhibitorHandler: InhibitorHandler;
+  listenerHandler: ListenerHandler;
+  languages: LanguageHandler;
+  modules: ModuleHandler;
+
+  // Buttons
+  buttonHandlersOnce: Collection<string, ButtonHandler>;
+  buttonHandlers: Collection<string, ButtonHandler>;
+
+  // Modals
+  modalHandlers: Collection<string, ModalHandler>;
+  modalHandlersOnce: Collection<string, ModalHandler>;
+
+  // Dropdowns
+  dropdownHandlers: Collection<string, DropdownHandler>;
+  dropdownHandlersOnce: Collection<string, DropdownHandler>;
+
+  // Gateway Events
+  nonceHandlers: Collection<string, NonceHandler>;
+
+  // /select Handlers
+  selectHandlers: Collection<string, SelectCommandHandler>;
+
+  // Private Utilities
+  private readyWait: Promise<Fire>;
+  private rawReadyWait: Promise<Fire>;
+  private rawReadyResolve: (value: Fire | PromiseLike<Fire>) => void;
+
+  // temp until akairo stops being weird and reverting itself
+  clearInterval: typeof clearInterval;
+  clearTimeout: typeof clearTimeout;
+  setInterval: typeof setInterval;
+  setTimeout: typeof setTimeout;
+
+  // Common Attributes
+  experiments: Collection<number, Experiment>;
+  aliases: Collection<string, string[]>;
+  declare user: FireUser & ClientUser;
+  config: typeof config.fire;
+  useCanary: boolean;
+  declare util: Util;
+
+  db: PGClient;
+  dbPromise: ReturnType<typeof connect>;
+}
+```
+
+### Key Components
+
+#### Handlers
+
+Fire uses several handlers to manage different aspects:
+
+**CommandHandler** (lib/Fire.ts:288-323)
+- Manages all bot commands
+- Handles prefix resolution
+- Manages cooldowns and permissions
+- Supports both slash commands and text commands
+
+```typescript lib/Fire.ts:288-322
+this.commandHandler = new CommandHandler(this, {
+  directory: this.isDist ? "./dist/src/commands/" : "./src/commands/",
+  commandUtil: true,
+  handleEdits: true,
+  fetchMembers: true,
+  defaultCooldown: 2500,
+  aliasReplacement: /-/im,
+  automateCategories: true,
+  commandUtilLifetime: 30000,
+  prefix: (message: FireMessage) => {
+    if (
+      message instanceof ApplicationCommandMessage ||
+      message instanceof ContextCommandMessage
+    )
+      return ["/"];
+    const prefixes = message.guild?.settings.get<string[]>(
+      "config.prefix",
+      ["$"]
+    );
+    return process.env.SPECIAL_PREFIX
+      ? [process.env.SPECIAL_PREFIX, process.env.SPECIAL_PREFIX + " "]
+      : message.guild
+        ? [
+            ...prefixes,
+            ...prefixes.map((prefix) => prefix + " "),
+            "fire",
+            "fire ",
+          ]
+        : ["$", "fire "];
+  },
+  ignoreCooldown: (message: FireMessage) =>
+    message.author?.isSuperuser() ||
+    (message.member?.isModerator() &&
+      message.util?.parsed?.command?.categoryID == "Moderation"),
+});
+```
+
+**ModuleHandler** (lib/Fire.ts:426-435)
+- Manages background modules
+- Handles module lifecycle (init/unload)
+
+**ListenerHandler** (lib/Fire.ts:398-409)
+- Manages event listeners
+- Handles Discord gateway events
+
+**InhibitorHandler** (lib/Fire.ts:385-396)
+- Command execution guards
+- Pre-execution checks
+
+#### Database Connection
+
+PostgreSQL connection management (lib/Fire.ts:440-471):
+
+```typescript lib/Fire.ts:440-458
+private async initDB(reconnect: boolean = false) {
+  if (this.db && !this.db.closed) await this.db.end();
+  delete this.db;
+  if (reconnect) await this.util.sleep(2500); // delay reconnect
+  this.getLogger("DB").warn("Attempting to connect...");
+  try {
+    this.dbPromise = connect({
+      host: process.env.POSTGRES_HOST,
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASS,
+      database: process.env.POSTGRES_DB,
+      ssl: SSLMode.Disable, // we're connecting locally
+    });
+    this.db = await this.dbPromise;
+  } catch (err) {
+    this.getLogger("DB").error("Failed to connect\n", err.stack);
+    return this.initDB(true);
+  }
+  this.getLogger("DB").log("Connected");
+}
+```
+
+#### Interaction Handlers
+
+Fire supports various interaction types:
+
+- **Button Handlers**: One-time and persistent button interactions
+- **Modal Handlers**: Form submission handlers
+- **Dropdown Handlers**: Select menu interactions
+- **Nonce Handlers**: Gateway event correlation
+
+## Command Architecture
+
+### Command Base Class (lib/util/command.ts)
+
+All commands extend the `Command` class:
+
+```typescript lib/util/command.ts:174-266
+export class Command extends AkairoCommand {
+  declare public userPermissions: bigint[];
+  declare public clientPermissions: bigint[];
+
+  private _guilds: Snowflake[];
+
+  requiresExperiment?: { id: number; bucket: number };
+  declare description: (language: Language) => string;
+  slashIds: Record<Snowflake, Snowflake>;
+  declare channel?: "guild" | "dm";
+  enableSlashCommand: boolean;
+  args?: ArgumentOptions[];
+  moderatorOnly: boolean;
+  superuserOnly: boolean;
+  deferAnyways: boolean;
+  declare client: Fire;
+  slashOnly: boolean;
+  ephemeral: boolean;
+  slashId: Snowflake;
+  context: string[];
+  premium: boolean;
+  parent?: string;
+  hidden: boolean;
+  group: boolean;
+
+  constructor(id: string, options?: CommandOptions) {
+    if (!options?.aliases?.length) options.aliases = [id];
+    else options?.aliases?.push(id);
+    if (!options?.clientPermissions && !options?.slashOnly)
+      options.clientPermissions = [
+        PermissionFlagsBits.UseExternalEmojis,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.AddReactions,
+      ];
+    if (
+      options.args instanceof Array &&
+      options.args.length == 1 &&
+      !options.args[0].match
+    )
+      options.args[0].match = "rest";
+    // ... initialization
+  }
+}
+```
+
+### Command Lifecycle
+
+1. **Registration**: Commands auto-load from `src/commands/` directories
+2. **Initialization**: `init()` called when loaded (lib/util/command.ts:288-300)
+3. **Execution**: Either `exec()` for text or `run()` for slash commands
+4. **Unload**: `unload()` called when removed (lib/util/command.ts:302-314)
+
+### Slash Command Support
+
+Commands can be registered as slash commands (lib/util/command.ts:365-416):
+
+```typescript lib/util/command.ts:365-393
+getSlashCommandJSON(id?: string) {
+  let data: FireAPIApplicationCommand = {
+    name: this.id,
+    description:
+      typeof this.description == "function"
+        ? this.description(this.client.getLanguage("en-US"))
+        : this.description || "No Description Provided",
+    type: ApplicationCommandType.ChatInput,
+    default_permission: true,
+    default_member_permissions: null,
+    dm_permission: !this.channel || this.channel == "dm",
+    options: [],
+    integration_types:
+      this.channel == "guild"
+        ? [ApplicationIntegrationType.GuildInstall]
+        : [
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall,
+          ],
+    contexts:
+      this.channel == "guild"
+        ? [InteractionContextType.Guild]
+        : [
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel,
+          ],
+  };
+  // ... options processing
+}
+```
+
+## Module Architecture
+
+### Module Base Class (lib/util/module.ts)
+
+Modules handle background tasks and stateful operations:
+
+```typescript lib/util/module.ts:4-19
+export class Module extends AkairoModule {
+  declare client: Fire;
+  
+  constructor(id: string) {
+    super(id, {});
+  }
+
+  get console() {
+    return this.client.getLogger(`Module:${this.constructor.name}`);
+  }
+
+  async init(): Promise<any> {}
+
+  async unload(): Promise<any> {}
+}
+```
+
+### Module Examples
+
+**AetherStats Module** (src/modules/aetherstats.ts:6-13)
+- Collects and sends statistics
+- Periodic tasks via intervals
+
+```typescript src/modules/aetherstats.ts:6-13
+export default class AetherStats extends Module {
+  events: Record<string, Record<string, number>> = {};
+  statsTask: NodeJS.Timeout;
+  eventsTask: NodeJS.Timeout;
+
+  constructor() {
+    super("aetherstats");
+  }
+```
+
+**Filters Module** (src/modules/filters.ts:29-60)
+- Content filtering system
+- Link detection and moderation
+
+```typescript src/modules/filters.ts:37-60
+this.regexes = {
+  discord: regexes.invites,
+  twitch: Object.values(regexes.twitch),
+  youtube: Object.values(regexes.youtube),
+  paypal: [regexes.paypal],
+  twitter: [regexes.twitter],
+  shorteners: [this.shortURLRegex],
+};
+this.filters = {
+  discord: [this.handleInvite, this.handleExtInvite],
+  paypal: [this.nobodyWantsToSendYouMoneyOnPayPal],
+  youtube: [this.handleYouTubeVideo, this.handleYouTubeChannel],
+  twitch: [this.handleTwitch],
+  twitter: [this.handleTwitter],
+  shorteners: [this.handleShort],
+};
+```
+
+## Argument System
+
+### Custom Type Casters
+
+Fire implements custom argument types (lib/Fire.ts:350-381):
+
+```typescript lib/Fire.ts:350-381
+this.commandHandler.resolver.addTypes({
+  "user|member|snowflake":
+    userMemberSnowflakeTypeCaster as ArgumentTypeCaster,
+  "member|role|channel": memberRoleChannelTypeCaster,
+  guildChannelSilent: guildChannelSilentTypeCaster,
+  categorySilent: categoryChannelSilentTypeCaster,
+  textChannelSilent: textChannelSilentTypeCaster,
+  previewSilent: previewSilentTypeCaster,
+  memberSilent: memberSilentTypeCaster,
+  guildChannel: guildChannelTypeCaster,
+  "user|member": userMemberTypeCaster,
+  "member|role": memberRoleTypeCaster,
+  category: categoryChannelTypeCaster,
+  textChannel: textChannelTypeCaster,
+  roleSilent: roleSilentTypeCaster,
+  userSilent: userSilentTypeCaster,
+  codeblock: codeblockTypeCaster,
+  language: languageTypeCaster,
+  listener: listenerTypeCaster,
+  image: attachmentTypeCaster,
+  preview: previewTypeCaster,
+  boolean: booleanTypeCaster,
+  command: commandTypeCaster,
+  message: messageTypeCaster,
+  member: memberTypeCaster,
+  module: moduleTypeCaster,
+  haste: hasteTypeCaster,
+  emoji: emojiTypeCaster,
+  role: roleTypeCaster,
+  user: userTypeCaster,
+  time: timeTypeCaster,
+});
+```
+
+### Slash Command Type Mapping
+
+Type conversion for slash commands (lib/util/command.ts:47-88):
+
+```typescript lib/util/command.ts:47-88
+export const getSlashType = (type: string) => {
+  switch (type) {
+    case "string":
+    case "codeblock":
+    case "command":
+    case "language":
+    case "listener":
+    case "module":
+    case "message":
+      return ApplicationCommandOptionType.String;
+    case "number":
+      return ApplicationCommandOptionType.Integer;
+    case "boolean":
+      return ApplicationCommandOptionType.Boolean;
+    case "user":
+    case "member":
+    case "user|member":
+    case "user|member|snowflake":
+    case "userSilent":
+    case "memberSilent":
+      return ApplicationCommandOptionType.User;
+    case "channel":
+    case "textChannel":
+    case "voiceChannel":
+    case "textChannelSilent":
+    case "category":
+    case "categorySilent":
+    case "guildChannel":
+    case "guildChannelSilent":
+      return ApplicationCommandOptionType.Channel;
+    case "role":
+    case "roleSilent":
+      return ApplicationCommandOptionType.Role;
+    case "member|role":
+      return ApplicationCommandOptionType.Mentionable;
+    case "image":
+    case "attachment":
+      return ApplicationCommandOptionType.Attachment;
+    default:
+      return ApplicationCommandOptionType.String;
+  }
+};
+```
+
+## Internationalization (i18n)
+
+Fire uses i18next for multi-language support (lib/Fire.ts:411-424):
+
+```typescript lib/Fire.ts:411-424
+this.languages = new LanguageHandler(this, {
+  directory: this.isDist ? "./dist/src/languages/" : "./src/languages/",
+});
+this.languages.loadAll();
+i18n
+  .init({
+    fallbackLng: "en-US",
+    fallbackNS: "fire",
+    resources: {},
+    lng: "en-US",
+  })
+  .then(() => {
+    this.languages.modules.forEach((language: Language) => language.init());
+  });
+```
+
+## Error Handling
+
+### Sentry Integration
+
+Production error tracking (lib/Fire.ts:245-251):
+
+```typescript lib/Fire.ts:245-251
+if (sentry) {
+  this.sentry = sentry;
+  this.sentry.setTag("process", process.pid.toString());
+  this.sentry.setTag("discord.js", djsver);
+  this.sentry.setTag("discord-akairo", akairover);
+  this.getLogger("Sentry").log("Connected");
+}
+```
+
+## Build System
+
+### TypeScript Configuration
+
+```json tsconfig.json:2-19
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "outDir": "dist/",
+    "baseUrl": ".",
+    "paths": {
+      "@fire/lib/*": ["lib/*"],
+      "@fire/src/*": ["src/*"],
+      "@fire/config/*": ["config/*"],
+      "@fire/i18n/*": ["languages/*"]
+    }
+  }
+}
+```
+
+### Build Scripts
+
+```json package.json:14-20
+"scripts": {
+  "dev": "pnpm compile && pnpm rundev",
+  "rundev": "NODE_ENV=development node --enable-source-maps dist/src/index.js",
+  "compile": "rm -rf dist/ && tsc && pnpm gitinfo",
+  "start": "NODE_ENV=production node --enable-source-maps dist/src/index.js",
+  "format": "prettier . --write",
+  "gitinfo": "git rev-parse HEAD > dist/commit.txt && git rev-parse --abbrev-ref HEAD > dist/branch.txt"
+}
+```
+
+## Design Patterns
+
+### Handler Pattern
+All major components use handlers for lifecycle management
+
+### Extension Pattern
+Discord.js classes are extended with custom functionality
+
+### Module Pattern
+Self-contained modules for specific functionality
+
+### Observer Pattern
+Event listeners respond to Discord gateway events
+
+### Command Pattern
+Encapsulated command execution with consistent interface

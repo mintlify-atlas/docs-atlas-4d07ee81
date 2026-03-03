@@ -1,0 +1,363 @@
+---
+title: Configuration Commands
+description: Server settings and customization commands
+icon: cog
+---
+
+## Overview
+
+Configuration commands allow server administrators to customize Fire's behavior and features for their server.
+
+<Note>
+Most configuration commands require the **Manage Server** permission.
+</Note>
+
+## Basic Settings
+
+### Language
+
+Set the language for Fire's responses.
+
+**Command:** `/language`
+
+<ParamField path="language" type="String">
+  The language to use. Leave empty to see current language and available options.
+</ParamField>
+
+**Server vs Personal:**
+- With Manage Server permission: Sets server-wide language
+- Without Manage Server: Sets your personal language preference
+
+**Available Languages:**
+Fire supports multiple languages with community translations. Use autocomplete to see all available options.
+
+**Examples:**
+```
+/language
+/language language:en-US
+/language language:es-ES
+```
+
+---
+
+### Command Restrictions
+
+Restrict commands to specific roles or channels.
+
+**Commands:**
+- `/restrict` - Restrict a command to specific roles
+- `/restrict-mod` - Restrict to moderators only
+- `/restrict-admin` - Restrict to administrators only
+
+<ParamField path="command" type="String" required>
+  The command to restrict
+</ParamField>
+
+<ParamField path="roles" type="Roles">
+  Roles that can use the command (for `/restrict`)
+</ParamField>
+
+---
+
+## Logging
+
+Configure what events Fire logs and where.
+
+### Setup Logging
+
+**Command:** `/logging-configure`
+
+<ParamField path="type" type="String" required>
+  Type of log to configure:
+  - `moderation` - Mod actions (bans, kicks, mutes)
+  - `message` - Message edits/deletes
+  - `member` - Joins/leaves
+  - `action` - General actions
+</ParamField>
+
+<ParamField path="channel" type="Channel" required>
+  The channel to send logs to
+</ParamField>
+
+**Example:**
+```
+/logging-configure type:moderation channel:#mod-logs
+```
+
+---
+
+### Toggle Logging
+
+**Command:** `/logging-toggle`
+
+<ParamField path="type" type="String" required>
+  Type of log to enable/disable
+</ParamField>
+
+Enables or disables specific log types without changing the channel.
+
+---
+
+### Logging Ignore
+
+Ignore specific channels from logging.
+
+**Command:** `/logignore`
+
+<ParamField path="channel" type="Channel" required>
+  Channel to ignore in logs
+</ParamField>
+
+<Note>
+Useful for ignoring bot channels or spam channels from message logs.
+</Note>
+
+---
+
+## Auto-Moderation
+
+### Link Filter
+
+Automatically filter and remove links.
+
+**Commands:**
+- `/linkfilter-toggle` - Enable/disable link filtering
+- `/linkfilter-exclude` - Exclude specific channels or roles
+- `/linkfilter-list-exclude` - View excluded channels/roles
+
+**Settings:**
+When enabled, Fire will automatically delete messages containing links from non-whitelisted members.
+
+**Example:**
+```
+/linkfilter-toggle
+/linkfilter-exclude channel:#media
+```
+
+---
+
+### Anti Settings
+
+Configure various anti-spam and anti-abuse features.
+
+**Command:** `/anti`
+
+Provides access to:
+- Anti-spam settings
+- Anti-raid protection
+- Anti-hoisting (special characters in names)
+- Anti-invite (block server invites)
+
+---
+
+### Blacklist
+
+Manage word blacklist for auto-moderation.
+
+**Command:** `/blacklist`
+
+<ParamField path="action" type="String" required>
+  Action: `add`, `remove`, or `list`
+</ParamField>
+
+<ParamField path="word" type="String">
+  Word to blacklist (for add/remove)
+</ParamField>
+
+**Example:**
+```
+/blacklist action:add word:badword
+/blacklist action:list
+```
+
+<Warning>
+Blacklisted words are automatically deleted. Use carefully and consider false positives.
+</Warning>
+
+---
+
+## Welcome & Farewell
+
+### Join Message
+
+Set a message to send when members join.
+
+**Command:** `/joinmsg`
+
+<ParamField path="message" type="String">
+  The welcome message. Use variables:
+  - `{user}` - User mention
+  - `{user.name}` - Username
+  - `{user.id}` - User ID
+  - `{guild}` - Server name
+  - `{guild.members}` - Member count
+</ParamField>
+
+<ParamField path="channel" type="Channel">
+  Channel to send welcome messages
+</ParamField>
+
+**Example:**
+```
+/joinmsg message:Welcome {user} to {guild}! You are member #{guild.members}
+```
+
+---
+
+### Leave Message
+
+Set a message to send when members leave.
+
+**Command:** `/leavemsg`
+
+<ParamField path="message" type="String">
+  The farewell message (supports same variables as joinmsg)
+</ParamField>
+
+<ParamField path="channel" type="Channel">
+  Channel to send leave messages
+</ParamField>
+
+---
+
+## Public Guilds
+
+Make your server appear in Fire's public server list.
+
+**Command:** `/public`
+
+<ParamField path="enabled" type="Boolean" required>
+  Whether to make the server public
+</ParamField>
+
+<ParamField path="description" type="String">
+  Description for the public listing
+</ParamField>
+
+<Note>
+Requires server to have at least 100 members and Fire Premium.
+</Note>
+
+---
+
+## Advanced Settings
+
+### Command Settings
+
+Configure individual command behavior.
+
+**Command:** `/command`
+
+<ParamField path="command" type="String" required>
+  The command to configure
+</ParamField>
+
+<ParamField path="enabled" type="Boolean">
+  Enable or disable the command
+</ParamField>
+
+<ParamField path="channels" type="Channels">
+  Channels where the command can be used
+</ParamField>
+
+---
+
+## Message Variables
+
+Many configuration commands support variables:
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{user}` | User mention | @Username |
+| `{user.name}` | Username | Username |
+| `{user.id}` | User ID | 123456789 |
+| `{user.tag}` | User#0000 | User#1234 |
+| `{guild}` | Server name | My Server |
+| `{guild.id}` | Server ID | 987654321 |
+| `{guild.members}` | Member count | 1,234 |
+| `{guild.owner}` | Owner mention | @Owner |
+| `{channel}` | Channel mention | #general |
+
+---
+
+## Configuration Categories
+
+<AccordionGroup>
+  <Accordion title="Essential Setup">
+    1. Set server language with `/language`
+    2. Configure logging with `/logging-configure`
+    3. Set up welcome messages with `/joinmsg`
+    4. Add moderator roles (see Moderation docs)
+  </Accordion>
+  
+  <Accordion title="Auto-Moderation">
+    1. Enable link filter if needed
+    2. Configure word blacklist
+    3. Set up anti-spam settings
+    4. Exclude trusted roles from filters
+  </Accordion>
+  
+  <Accordion title="Customization">
+    1. Customize join/leave messages
+    2. Restrict commands to specific channels
+    3. Configure command permissions
+    4. Set up public server listing (if eligible)
+  </Accordion>
+  
+  <Accordion title="Logging Best Practices">
+    - Use separate channels for different log types
+    - Ignore bot/spam channels from message logs
+    - Regularly review logs for issues
+    - Keep log channels private to staff
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Example Setup
+
+Here's a recommended configuration flow for new servers:
+
+```bash
+# 1. Set server language
+/language language:en-US
+
+# 2. Configure logging
+/logging-configure type:moderation channel:#mod-logs
+/logging-configure type:message channel:#message-logs
+/logging-configure type:member channel:#member-logs
+
+# 3. Set welcome message
+/joinmsg channel:#welcome message:Welcome {user} to {guild}!
+
+# 4. Enable auto-moderation
+/linkfilter-toggle
+/linkfilter-exclude channel:#media
+
+# 5. Add moderators (see moderation commands)
+/moderators-add role:@Moderator
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Logs Not Appearing">
+    - Verify Fire has permission to send messages in the log channel
+    - Check that logging is enabled with `/logging-toggle`
+    - Ensure the channel isn't in the ignore list
+  </Accordion>
+  
+  <Accordion title="Welcome Messages Not Sending">
+    - Confirm Fire has Send Messages permission in the welcome channel
+    - Check that the message format is valid
+    - Verify the channel is set correctly
+  </Accordion>
+  
+  <Accordion title="Link Filter Not Working">
+    - Ensure Fire has Manage Messages permission
+    - Check that the user/channel isn't excluded
+    - Verify the filter is enabled
+  </Accordion>
+</AccordionGroup>

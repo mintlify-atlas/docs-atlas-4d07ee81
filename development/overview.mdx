@@ -1,0 +1,197 @@
+---
+title: Contributing Overview
+description: Guidelines for contributing to the Fire Discord Bot project
+---
+
+## Welcome Contributors!
+
+Fire is an open-source Discord bot built with TypeScript, Discord.js, and Discord Akairo. This documentation will help you understand the codebase and contribute effectively.
+
+## Project Overview
+
+Fire is designed to be a comprehensive Discord bot with:
+- Moderation tools
+- Utility commands
+- Content filtering
+- Ticket system
+- Starboard functionality
+- Premium features
+- And much more!
+
+## Technology Stack
+
+### Core Dependencies
+
+- **Node.js**: >=24.13.0
+- **TypeScript**: ^5.9.3
+- **Discord.js**: Custom fork with Fire-specific enhancements
+- **Discord Akairo**: Command/event framework
+- **PostgreSQL**: Database via ts-postgres
+
+### Key Libraries
+
+```json package.json
+{
+  "discord.js": "github:FireDiscordBot/discord.js",
+  "discord-akairo": "github:discord-akairo/discord-akairo",
+  "ts-postgres": "^2.0.4",
+  "@sentry/node": "^10.38.0",
+  "i18next": "^25.8.1"
+}
+```
+
+## Development Workflow
+
+### Getting Started
+
+<Steps>
+  <Step title="Fork and Clone">
+    Fork the repository and clone it to your local machine.
+  </Step>
+  
+  <Step title="Install Dependencies">
+    ```bash
+    pnpm install
+    ```
+  </Step>
+  
+  <Step title="Set Up Environment">
+    Configure your development environment (see [Setup](/development/setup)).
+  </Step>
+  
+  <Step title="Start Development">
+    ```bash
+    pnpm dev
+    ```
+  </Step>
+</Steps>
+
+## Contributing Guidelines
+
+### Code Style
+
+- Use TypeScript for all new code
+- Follow existing code patterns and conventions
+- Run Prettier before committing:
+  ```bash
+  pnpm format
+  ```
+
+### File Organization
+
+```
+src/
+├── commands/        # Bot commands organized by category
+│   ├── Admin/
+│   ├── Configuration/
+│   ├── Fun/
+│   ├── Main/
+│   ├── Moderation/
+│   ├── Premium/
+│   ├── Starboard/
+│   ├── Tags/
+│   ├── Tickets/
+│   └── Utilities/
+├── modules/         # Bot modules (background tasks, filters)
+├── listeners/       # Event listeners
+├── inhibitors/      # Command inhibitors
+├── arguments/       # Custom argument types
+└── languages/       # Internationalization
+
+lib/
+├── Fire.ts          # Main bot client
+├── Manager.ts       # Cluster manager
+├── util/            # Utilities
+│   ├── command.ts   # Command base class
+│   ├── module.ts    # Module base class
+│   └── constants.ts # Constants
+└── extensions/      # Discord.js extensions
+```
+
+### Module Aliases
+
+The project uses TypeScript path aliases:
+
+```typescript
+import { Fire } from "@fire/lib/Fire";
+import { Command } from "@fire/lib/util/command";
+import SomeModule from "@fire/src/modules/somemodule";
+```
+
+Path mappings (tsconfig.json:13-18):
+- `@fire/lib/*` → `lib/*`
+- `@fire/src/*` → `src/*`
+- `@fire/config/*` → `config/*`
+- `@fire/i18n/*` → `languages/*`
+
+## Commit Guidelines
+
+### Commit Messages
+
+Use clear, descriptive commit messages:
+
+```
+feat: add user timeout command
+fix: resolve avatar button interaction issue
+refactor: optimize filter module performance
+docs: update command creation guide
+```
+
+### Before Committing
+
+- Test your changes thoroughly
+- Run `pnpm format` to format code
+- Ensure TypeScript compiles: `pnpm compile`
+- Verify no linting errors
+
+## Testing Your Changes
+
+### Local Testing
+
+1. Set up a test Discord server
+2. Create a bot application in Discord Developer Portal
+3. Configure environment variables
+4. Run the bot in development mode:
+   ```bash
+   pnpm dev
+   ```
+
+### Production Build
+
+Test the production build before submitting:
+
+```bash
+pnpm compile
+pnpm start
+```
+
+## Getting Help
+
+- Check existing documentation
+- Review similar commands/modules for examples
+- Ask questions in the Fire Discord server
+- Open an issue for bugs or feature requests
+
+## License
+
+Fire is licensed under AGPL-3.0-only. All contributions must comply with this license.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="diagram-project" href="/development/architecture">
+    Learn about the codebase architecture
+  </Card>
+  
+  <Card title="Setup Guide" icon="gear" href="/development/setup">
+    Set up your development environment
+  </Card>
+  
+  <Card title="Create Commands" icon="code" href="/development/commands">
+    Build your first command
+  </Card>
+  
+  <Card title="Create Modules" icon="puzzle-piece" href="/development/modules">
+    Create background modules
+  </Card>
+</CardGroup>

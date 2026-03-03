@@ -1,0 +1,307 @@
+---
+title: Moderation features
+description: Powerful moderation tools to keep your Discord server safe and organized
+---
+
+Fire provides comprehensive moderation features to help you maintain a safe and welcoming environment in your Discord server. From basic actions like bans and kicks to advanced auto-moderation, Fire has everything you need.
+
+## Core moderation actions
+
+<Tabs>
+  <Tab title="Ban">
+    ### Ban members
+    
+    Ban users from your server with optional message deletion and temporary bans.
+    
+    ```bash
+    /ban user:@username reason:"Violated server rules" time:7d delete:1d
+    ```
+    
+    **Options:**
+    - `user` - The user to ban (required)
+    - `reason` - Reason for the ban (optional)
+    - `time` - Duration for temporary ban, e.g., "7d", "24h" (optional)
+    - `delete` - How far back to delete messages: none, 1h, 6h, 12h, 1d, 3d, 7d (optional)
+    
+    <Note>
+    Temporary bans have a minimum duration of 30 minutes. The user will be automatically unbanned after the specified time.
+    </Note>
+  </Tab>
+  
+  <Tab title="Kick">
+    ### Kick members
+    
+    Remove users from your server without banning them.
+    
+    ```bash
+    /kick user:@username reason:"Spamming in channels"
+    ```
+    
+    **Options:**
+    - `user` - The member to kick (required)
+    - `reason` - Reason for the kick (optional)
+    
+    <Info>
+    Kicked users can rejoin with a new invite link, unlike banned users.
+    </Info>
+  </Tab>
+  
+  <Tab title="Mute">
+    ### Mute members
+    
+    Prevent members from sending messages using Discord's timeout feature.
+    
+    ```bash
+    /mute user:@username reason:"Excessive spam" time:1h
+    ```
+    
+    **Options:**
+    - `user` - The member to mute (required)
+    - `reason` - Reason for the mute (optional)
+    - `time` - Duration of the mute (optional, permanent if not specified)
+    
+    To unmute a member:
+    ```bash
+    /unmute user:@username
+    ```
+  </Tab>
+  
+  <Tab title="Warn">
+    ### Warn members
+    
+    Issue warnings to members for rule violations.
+    
+    ```bash
+    /warn user:@username reason:"Posted NSFW content in general chat"
+    ```
+    
+    **View warnings:**
+    ```bash
+    /warnings view user:@username
+    ```
+    
+    **Clear warnings:**
+    ```bash
+    /warnings clear user:@username
+    ```
+    
+    <Note>
+    Warnings are logged in the moderation log channel if configured. They help track repeat offenders.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Advanced moderation
+
+### Message purging
+
+Delete multiple messages at once with powerful filtering options.
+
+**Basic purge:**
+```bash
+/purge amount:50
+```
+
+**Advanced filtering:**
+```bash
+# Purge messages from a specific user
+/purge amount:100 --user @username
+
+# Purge messages containing specific text
+/purge amount:50 --match "spam text"
+
+# Purge messages from bots
+/purge amount:100 --bot
+
+# Purge messages with attachments
+/purge amount:50 --attachments
+```
+
+**Available flags:**
+- `--user` - Only purge messages from a specific user
+- `--match` - Only purge messages containing text
+- `--nomatch` - Only purge messages NOT containing text
+- `--startswith` - Only purge messages starting with text
+- `--endswith` - Only purge messages ending with text
+- `--attachments` - Only purge messages with attachments
+- `--bot` - Only purge messages from bots
+- `--include_embeds` - Include embed content in text matching
+- `-i` - Inverse filter (exclude instead of include)
+
+<Warning>
+You can only purge up to 100 messages at a time. Messages older than 14 days cannot be bulk deleted due to Discord limitations.
+</Warning>
+
+### Channel lockdown
+
+Quickly lock down channels during emergencies or raids.
+
+```bash
+# Start a lockdown
+/lockdown start reason:"Raid in progress"
+
+# End the lockdown
+/lockdown end reason:"Raid mitigated"
+
+# Exclude a category from lockdown
+/lockdown exclude category:"Staff Channels"
+```
+
+<Info>
+Lockdown removes send message permissions from all roles in channels, preventing members from sending messages while keeping channels visible.
+</Info>
+
+## Auto-moderation features
+
+<CardGroup cols={2}>
+  <Card title="Auto dehoist" icon="arrow-down-a-z">
+    Automatically rename members who use special characters to hoist themselves to the top of the member list.
+    
+    ```bash
+    /autodehoist enable
+    ```
+  </Card>
+  
+  <Card title="Auto decancer" icon="sparkles">
+    Automatically clean up usernames with excessive special characters or confusing text.
+    
+    ```bash
+    /autodecancer enable
+    ```
+  </Card>
+  
+  <Card title="Auto role" icon="user-plus">
+    Automatically assign roles to new members when they join.
+    
+    ```bash
+    /autorole set role:@Members
+    ```
+  </Card>
+  
+  <Card title="Bad name handling" icon="user-slash">
+    Automatically rename users with inappropriate or problematic usernames.
+    
+    ```bash
+    /badname set name:"Nickname {id}"
+    ```
+  </Card>
+</CardGroup>
+
+## Moderation team management
+
+### Configure moderators
+
+Set up who can use moderation commands in your server.
+
+```bash
+# Add a moderator
+/moderators add role:@Moderators
+
+# Remove a moderator
+/moderators remove role:@Moderators
+
+# List all moderators
+/moderators list
+```
+
+<Note>
+Server administrators and owners always have access to moderation commands, even if not explicitly added as moderators.
+</Note>
+
+### Block users from channels
+
+Prevent specific users from accessing certain channels.
+
+```bash
+# Block a user from current channel
+/block user:@username
+
+# Unblock a user
+/unblock user:@username
+```
+
+### Derank members
+
+Remove all roles from a member.
+
+```bash
+/derank user:@username reason:"Role abuse"
+```
+
+## Moderation logs
+
+### View moderation history
+
+Track all moderation actions in your server.
+
+**View user's moderation history:**
+```bash
+/modlogs view user:@username
+```
+
+**View moderator statistics:**
+```bash
+/modlogs stats
+```
+
+**View specific moderator's actions:**
+```bash
+/modlog modstats moderator:@moderator
+```
+
+<Info>
+All moderation actions are automatically logged and can be viewed by server moderators and administrators.
+</Info>
+
+## Member appeals
+
+Allow banned members to appeal their bans.
+
+```bash
+# Configure appeal system (requires setup)
+/appeals setup
+```
+
+<Accordion title="How do appeals work?">
+When enabled, banned members receive a message with instructions on how to appeal their ban. They can submit an appeal which moderators can review and approve or deny directly from Discord.
+</Accordion>
+
+## Best practices
+
+<Steps>
+  <Step title="Set up your moderation team">
+    Use `/moderators add` to configure which roles can use moderation commands.
+  </Step>
+  
+  <Step title="Configure auto-moderation">
+    Enable auto-dehoist and auto-decancer to automatically handle common issues.
+  </Step>
+  
+  <Step title="Set up auto-role">
+    Automatically assign a member role to new joiners.
+  </Step>
+  
+  <Step title="Review modlogs regularly">
+    Check moderation statistics to ensure your team is active and consistent.
+  </Step>
+  
+  <Step title="Document your rules">
+    Include reasons when taking moderation actions to maintain transparency.
+  </Step>
+</Steps>
+
+## Required permissions
+
+For moderation features to work properly, Fire needs these permissions:
+
+- **Ban Members** - For ban/unban commands
+- **Kick Members** - For kick command
+- **Moderate Members** - For timeout/mute features
+- **Manage Messages** - For purge command
+- **Manage Channels** - For lockdown and block commands
+- **Manage Roles** - For derank and auto-role features
+- **Manage Nicknames** - For auto-dehoist and auto-decancer
+
+<Warning>
+Make sure Fire's role is positioned higher than the roles it needs to manage. Fire cannot moderate members with roles equal to or higher than its own highest role.
+</Warning>

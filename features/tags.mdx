@@ -1,0 +1,349 @@
+---
+title: Custom tag system
+description: Create custom text responses with embeds that members can trigger with simple commands
+---
+
+Fire's tag system allows you to create custom commands that respond with pre-written text and embeds. This is perfect for FAQs, server rules, common responses, and any content you want to quickly share with members.
+
+## What are tags?
+
+Tags are custom text snippets that your server members can trigger using simple commands. They can contain:
+- Plain text messages
+- Rich embeds with formatting
+- Multiple embeds in one tag
+- Images and links
+- Server-specific information
+
+**Common use cases:**
+- Frequently asked questions
+- Server rules and guidelines
+- Application templates
+- Welcome messages
+- Information about server roles
+- Bot command help
+- Social media links
+
+## Creating tags
+
+### Create a basic tag
+
+```bash
+/tag create name:welcome content:"Welcome to our server! Please read the rules in #rules"
+```
+
+**Options:**
+- `name` - The tag name (what users type to trigger it)
+- `content` - The text content of the tag
+
+<Note>
+Tag names are case-insensitive and can only contain letters, numbers, and underscores.
+</Note>
+
+### Create a tag with embeds
+
+<Steps>
+  <Step title="Create an embed">
+    First, create an embed using `/embed create` and customize it to your liking.
+  </Step>
+  
+  <Step title="Get the embed ID">
+    After creating the embed, note its ID from the message.
+  </Step>
+  
+  <Step title="Create the tag">
+    Create a tag and reference the embed ID.
+    
+    ```bash
+    /tag create name:rules content:"Here are our server rules:"
+    ```
+    
+    Then link the embed to the tag.
+  </Step>
+</Steps>
+
+<Info>
+You can attach multiple embeds to a single tag for rich, detailed responses.
+</Info>
+
+## Using tags
+
+### Trigger a tag
+
+Members can use tags in several ways:
+
+```bash
+# Standard usage
+/tag rules
+
+# Or simply
+tag rules
+
+# Delete message after sending (dtag)
+dtag rules
+```
+
+**Tag prefixes:**
+- `tag` - Send the tag normally
+- `dtag` - Send the tag and delete the command message (useful to keep channels clean)
+
+### List all tags
+
+View all available tags in your server:
+
+```bash
+/tag
+```
+
+This displays a list of all tag names in an embed.
+
+## Managing tags
+
+<Tabs>
+  <Tab title="Edit">
+    ### Edit a tag
+    
+    Modify the content of an existing tag.
+    
+    ```bash
+    /tag edit name:welcome content:"Updated welcome message!"
+    ```
+    
+    This updates the tag's text content. You can also edit the embeds attached to it separately.
+  </Tab>
+  
+  <Tab title="Delete">
+    ### Delete a tag
+    
+    Remove a tag you no longer need.
+    
+    ```bash
+    /tag delete name:oldtag
+    ```
+    
+    <Warning>
+    Deleting a tag is permanent and cannot be undone. Make sure you really want to remove it.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Info">
+    ### View tag information
+    
+    See details about a tag, including who created it and when.
+    
+    ```bash
+    /tag info name:welcome
+    ```
+    
+    **Information shown:**
+    - Tag creator
+    - Creation date
+    - Number of uses
+    - Attached embeds
+    - Aliases
+  </Tab>
+  
+  <Tab title="Raw">
+    ### View raw tag content
+    
+    See the exact text content of a tag without triggering it.
+    
+    ```bash
+    /tag raw name:welcome
+    ```
+    
+    Useful for copying tag content or debugging.
+  </Tab>
+</Tabs>
+
+## Advanced features
+
+### Tag aliases
+
+Create alternative names for tags.
+
+```bash
+/tag alias tag:faq alias:questions
+```
+
+Now members can use either `tag faq` or `tag questions` to trigger the same tag.
+
+**Benefits:**
+- Make tags easier to find
+- Support multiple languages
+- Create shortcuts for long tag names
+
+### Slash command tags
+
+Convert tags to slash commands for easier discovery.
+
+```bash
+/tag slash name:rules
+```
+
+This makes the tag appear in Discord's slash command autocomplete, making it more discoverable for members.
+
+<Info>
+Slash command tags appear in the autocomplete menu when users type `/`, making them easy to find without memorizing tag names.
+</Info>
+
+### Tag usage statistics
+
+Track how often tags are used.
+
+```bash
+/tag info name:rules
+```
+
+The info command shows:
+- Total number of times the tag has been used
+- Who created the tag
+- When it was created
+- Last time it was modified
+
+## Tag permissions
+
+### Who can use tags?
+
+**Everyone can:**
+- View and use existing tags
+- List all available tags
+
+**Only moderators/admins can:**
+- Create new tags
+- Edit existing tags
+- Delete tags
+- Create aliases
+- Convert tags to slash commands
+
+<Note>
+By default, users with "Manage Server" permission can manage tags. You can customize this with Discord's role permissions.
+</Note>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Use clear names" icon="signature">
+    Choose tag names that are intuitive and easy to remember (e.g., `rules`, `apply`, `faq`).
+  </Card>
+  
+  <Card title="Keep content concise" icon="align-left">
+    Make tag content clear and to the point. Use embeds for longer content.
+  </Card>
+  
+  <Card title="Create aliases" icon="link">
+    Add aliases for common misspellings or alternative names.
+  </Card>
+  
+  <Card title="Use embeds" icon="file-image">
+    Leverage embeds for visual appeal and better organization of information.
+  </Card>
+  
+  <Card title="Update regularly" icon="rotate">
+    Review and update tags periodically to keep information current.
+  </Card>
+  
+  <Card title="Track usage" icon="chart-line">
+    Check tag statistics to see which ones are most valuable to your community.
+  </Card>
+</CardGroup>
+
+## Example tags
+
+### FAQ tag
+
+```bash
+# Create an FAQ tag with an embed
+/tag create name:faq content:"Frequently Asked Questions"
+```
+
+Then create an embed with common questions and answers, and link it to the tag.
+
+### Rules tag
+
+```bash
+# Create a rules tag
+/tag create name:rules content:"Please follow our server rules:"
+```
+
+Attach an embed with numbered rules, consequences, and links to relevant channels.
+
+### Application template
+
+```bash
+/tag create name:apply content:"To apply for staff, please fill out:
+
+**Age:**
+**Timezone:**
+**Experience:**
+**Why you want to join:**
+**Availability:**
+
+Submit your application in #applications"
+```
+
+### Social links tag
+
+```bash
+/tag create name:socials content:"Follow us on:
+🐦 Twitter: twitter.com/example
+📷 Instagram: instagram.com/example
+🎮 Twitch: twitch.tv/example"
+```
+
+## Tag workflow
+
+<Steps>
+  <Step title="Identify common questions">
+    Make a list of questions your members frequently ask.
+  </Step>
+  
+  <Step title="Create embeds">
+    Design embeds with answers using `/embed create`.
+  </Step>
+  
+  <Step title="Create tags">
+    Link your embeds to tags with intuitive names.
+  </Step>
+  
+  <Step title="Add aliases">
+    Create alternative names for easier access.
+  </Step>
+  
+  <Step title="Enable slash commands">
+    Convert popular tags to slash commands for better discoverability.
+  </Step>
+  
+  <Step title="Promote usage">
+    Let your members know about available tags in an announcement.
+  </Step>
+</Steps>
+
+## Tips for effective tags
+
+<Accordion title="How many tags should I create?">
+Start with 5-10 essential tags (rules, FAQ, apply, socials, etc.) and expand based on community needs. Too many tags can be overwhelming.
+</Accordion>
+
+<Accordion title="Should I use plain text or embeds?">
+Use plain text for simple responses and embeds for formatted information, rules, or anything that benefits from visual organization.
+</Accordion>
+
+<Accordion title="How do I organize tags?">
+Use clear naming conventions (e.g., `faq-roles`, `faq-bots`) and consider creating a `tags` tag that lists all available tags by category.
+</Accordion>
+
+<Accordion title="Can tags mention roles or channels?">
+Yes! You can include mentions in tag content using the standard Discord format (`<@&role_id>` for roles, `<#channel_id>` for channels).
+</Accordion>
+
+## Required permissions
+
+For tags to work properly, Fire needs:
+
+- **Send Messages** - To send tag content
+- **Embed Links** - To send embeds with tags
+- **Manage Messages** - To delete messages when using `dtag`
+
+<Note>
+Tags work in both servers and DMs, though tags are server-specific and won't work in DMs unless they're from that server.
+</Note>

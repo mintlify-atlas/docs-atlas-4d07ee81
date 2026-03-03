@@ -1,0 +1,440 @@
+---
+title: Auto-moderation
+description: Configure Fire's automated moderation features to keep your server safe
+---
+
+Fire includes powerful automated moderation tools that help keep your server safe and clean without constant manual intervention.
+
+## Anti-spam features
+
+Protect your server from common spam tactics with Fire's anti-spam features.
+
+### Anti-everyone
+
+Prevents users from pinging @everyone or @here in messages.
+
+<Steps>
+  <Step title="Enable anti-everyone">
+    ```
+    /anti
+    ```
+    Click the "Anti Everyone" button to toggle this feature.
+  </Step>
+
+  <Step title="How it works">
+    When enabled, Fire automatically deletes messages containing @everyone or @here mentions from non-moderators.
+
+    <Note>
+    Users with Manage Server or moderator roles are exempt from this filter.
+    </Note>
+  </Step>
+</Steps>
+
+### Anti-ZWS (Zero-Width Space)
+
+Detects and removes messages containing zero-width space characters, often used to bypass filters.
+
+<Steps>
+  <Step title="Enable anti-ZWS">
+    ```
+    /anti
+    ```
+    Click the "Anti ZWS" button to toggle this feature.
+  </Step>
+
+  <Step title="How it works">
+    Fire scans messages for invisible zero-width characters:
+    - Zero-width space (U+200B)
+    - Zero-width non-joiner (U+200C)
+    - Zero-width joiner (U+200D)
+
+    Messages containing these are automatically deleted.
+  </Step>
+</Steps>
+
+<Warning>
+Some legitimate uses (like certain language characters) may be affected. Monitor the moderation logs to ensure no false positives.
+</Warning>
+
+### Anti-spoiler
+
+Prevents abuse of Discord's spoiler tags.
+
+<Steps>
+  <Step title="Enable anti-spoiler">
+    ```
+    /anti
+    ```
+    Click the "Anti Spoiler" button to toggle this feature.
+  </Step>
+
+  <Step title="How it works">
+    Deletes messages that contain excessive spoiler tags, which can be used to:
+    - Spam channels
+    - Hide malicious content
+    - Bypass content filters
+  </Step>
+</Steps>
+
+## Link filtering
+
+Control what types of links can be shared in your server.
+
+### Enabling link filters
+
+```
+/linkfilter toggle
+```
+
+This opens a menu where you can toggle the following filters:
+
+<AccordionGroup>
+  <Accordion title="Discord invites">
+    Blocks Discord server invite links (discord.gg, discord.com/invite).
+
+    **Use case:** Prevent advertising of other Discord servers.
+  </Accordion>
+
+  <Accordion title="PayPal links">
+    Blocks PayPal.me and PayPal payment links.
+
+    **Use case:** Prevent scam payment requests or unauthorized solicitation.
+  </Accordion>
+
+  <Accordion title="YouTube links">
+    Blocks YouTube video and channel links.
+
+    **Use case:** Restrict video sharing to specific channels.
+  </Accordion>
+
+  <Accordion title="Twitch links">
+    Blocks Twitch channel and clip links.
+
+    **Use case:** Prevent stream advertising or restrict to media channels.
+  </Accordion>
+
+  <Accordion title="Twitter links">
+    Blocks Twitter/X post and profile links.
+
+    **Use case:** Control social media sharing.
+  </Accordion>
+
+  <Accordion title="Link shorteners">
+    Blocks URL shorteners (bit.ly, tinyurl.com, etc.).
+
+    **Use case:** Security measure to prevent hidden malicious links.
+
+    <Warning>
+    Link shorteners can hide dangerous websites. This filter is recommended for security.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+### Excluding from link filters
+
+Exempt specific users, roles, or channels from link filtering:
+
+```
+/linkfilter exclude <user|role|channel>
+```
+
+**Examples:**
+```
+/linkfilter exclude user:@TrustedMember
+/linkfilter exclude role:@ContentCreator
+/linkfilter exclude channel:#media
+```
+
+To view current exclusions:
+```
+/linkfilter list-exclude
+```
+
+<Note>
+Running `/linkfilter exclude` on an already excluded item will remove the exclusion.
+</Note>
+
+## Automatic moderation actions
+
+### Auto-decancer
+
+Automatically fixes nicknames with special characters or non-standard Unicode.
+
+```
+/autodecancer
+```
+
+**What it does:**
+- Removes special characters from nicknames
+- Converts Unicode characters to ASCII equivalents
+- Helps prevent nickname hoisting and unreadable names
+
+**Example transformations:**
+- `๖ۣۜƤⱤɆĐ₳₮ØⱤ` → `PREDATOR`
+- `「Toxic」User` → `Toxic User`
+- `ＣＯＯＬᴺᴬᴹᴱ` → `COOLNAME`
+
+<Note>
+Requires Fire to have **Manage Nicknames** permission and a role higher than users being renamed.
+</Note>
+
+### Auto-dehoist
+
+Prevents users from "hoisting" their names to the top of the member list using special characters.
+
+```
+/autodehoist
+```
+
+**What it does:**
+- Detects nicknames starting with special characters (!, ?, numbers, etc.)
+- Automatically renames them to prevent hoisting
+- Adds a prefix to push them down the member list
+
+**Example:**
+- `!!! Admin` → `Dehoisted !!! Admin`
+- `001 User` → `Dehoisted 001 User`
+
+## Logging
+
+Track all moderation activities with Fire's comprehensive logging system.
+
+### Setting up logging
+
+<Steps>
+  <Step title="Enable logging">
+    ```
+    /logging toggle <type> <channel>
+    ```
+
+    **Types:**
+    - `moderation` - Moderation actions (bans, kicks, mutes)
+    - `action` - Server actions (channel edits, role changes)
+    - `members` - Member events (joins, leaves, nickname changes)
+  </Step>
+
+  <Step title="Configure log details">
+    ```
+    /logging configure
+    ```
+
+    This opens interactive menus to select which specific events to log for each category.
+  </Step>
+</Steps>
+
+### Moderation logs
+
+Track all moderation actions taken by moderators:
+
+**Logged events:**
+- Bans and unbans
+- Kicks
+- Mutes and unmutes
+- Warnings and notes
+- Blacklists
+- Message deletions (purge)
+- Slowmode changes
+- Lockdowns
+
+**Log format:**
+Each log includes:
+- Action taken
+- Target user
+- Moderator who performed the action
+- Reason (if provided)
+- Timestamp
+- User ID and Moderator ID
+
+### Action logs
+
+Monitor server changes and important events:
+
+**Logged events:**
+- Channel creates, updates, and deletes
+- Role creates, updates, and deletes
+- Server settings changes
+- Emoji and sticker changes
+- Webhook creates and deletes
+- Integration changes
+
+### Member logs
+
+Track member activity and changes:
+
+**Logged events:**
+- Member joins and leaves
+- Nickname changes
+- Username changes
+- Role additions and removals
+- Avatar changes
+- Voice channel joins, leaves, and moves
+
+### Ignoring channels from logs
+
+Exclude specific channels from being logged:
+
+```
+/logignore <channel>
+```
+
+**Use cases:**
+- Bot command channels with lots of spam
+- Off-topic channels
+- Testing channels
+
+To remove a channel from the ignore list, run the command again.
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Start with link filters" icon="link">
+    Enable Discord invite and link shortener filters first - they provide the most security benefit.
+  </Card>
+
+  <Card title="Monitor auto-mod actions" icon="eye">
+    Regularly check your moderation logs to ensure auto-moderation isn't creating false positives.
+  </Card>
+
+  <Card title="Exclude trusted roles" icon="user-shield">
+    Use `/linkfilter exclude` to exempt moderators and trusted members from link filters.
+  </Card>
+
+  <Card title="Combine with manual moderation" icon="gavel">
+    Auto-moderation is a supplement to, not a replacement for, active moderation.
+  </Card>
+</CardGroup>
+
+## Configuration examples
+
+### Example 1: Basic safety setup
+
+<Steps>
+  <Step title="Enable core anti-spam">
+    ```
+    /anti
+    ```
+    Enable Anti-Everyone and Anti-ZWS
+  </Step>
+
+  <Step title="Block malicious links">
+    ```
+    /linkfilter toggle
+    ```
+    Enable Link Shorteners and Discord Invites
+  </Step>
+
+  <Step title="Set up moderation logging">
+    ```
+    /logging toggle moderation #mod-logs
+    ```
+  </Step>
+</Steps>
+
+### Example 2: Strict content control
+
+<Steps>
+  <Step title="Enable all anti-spam features">
+    ```
+    /anti
+    ```
+    Enable Anti-Everyone, Anti-ZWS, and Anti-Spoiler
+  </Step>
+
+  <Step title="Comprehensive link filtering">
+    ```
+    /linkfilter toggle
+    ```
+    Enable all filters except those needed for your community
+  </Step>
+
+  <Step title="Exempt media channels">
+    ```
+    /linkfilter exclude channel:#media
+    /linkfilter exclude channel:#content-creators
+    ```
+  </Step>
+
+  <Step title="Enable auto-moderation">
+    ```
+    /autodecancer
+    /autodehoist
+    ```
+  </Step>
+</Steps>
+
+### Example 3: Community server with content creators
+
+<Steps>
+  <Step title="Basic safety only">
+    ```
+    /anti
+    ```
+    Enable Anti-Everyone and Anti-ZWS only
+  </Step>
+
+  <Step title="Selective link filtering">
+    ```
+    /linkfilter toggle
+    ```
+    Enable Link Shorteners and PayPal only
+  </Step>
+
+  <Step title="Exempt creator role">
+    ```
+    /linkfilter exclude role:@Content Creator
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Auto-moderation deleting legitimate messages">
+    **Solutions:**
+    1. Review which filters are enabled with `/anti` and `/linkfilter toggle`
+    2. Use `/linkfilter exclude` to exempt trusted users/roles
+    3. Disable overly aggressive filters for your community type
+    4. Create specific channels where filters are disabled
+  </Accordion>
+
+  <Accordion title="Links not being filtered">
+    **Possible causes:**
+    1. Link filters not enabled via `/linkfilter toggle`
+    2. User/role/channel is excluded
+    3. User is a moderator or has Manage Server permission
+    4. Fire lacks Manage Messages permission
+
+    **Solution:** Verify filter settings and Fire's permissions.
+  </Accordion>
+
+  <Accordion title="Logs not appearing">
+    **Possible causes:**
+    1. Logging not enabled with `/logging toggle`
+    2. Fire can't access the log channel
+    3. Fire lacks Send Messages or Embed Links permission
+    4. Channel is in the ignore list
+
+    **Solution:** Check `/logignore` and verify Fire's permissions in the log channel.
+  </Accordion>
+
+  <Accordion title="Auto-dehoist/decancer not working">
+    **Requirements:**
+    1. Fire needs Manage Nicknames permission
+    2. Fire's role must be higher than the target user's highest role
+    3. Cannot rename server owner
+    4. Feature must be enabled
+
+    **Solution:** Verify Fire's role position and permissions.
+  </Accordion>
+</AccordionGroup>
+
+## Related configuration
+
+<CardGroup cols={2}>
+  <Card title="Server setup" icon="server" href="/configuration/server-setup">
+    Initial server configuration
+  </Card>
+  <Card title="Permissions" icon="shield-check" href="/configuration/permissions">
+    Command permissions and restrictions
+  </Card>
+</CardGroup>

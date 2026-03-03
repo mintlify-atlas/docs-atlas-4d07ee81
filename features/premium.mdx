@@ -1,0 +1,388 @@
+---
+title: Premium features
+description: Unlock advanced customization and exclusive features with Fire Premium
+---
+
+Fire Premium unlocks powerful features that give you more control and customization options for your Discord server. From self-assignable ranks to custom bot identity, premium features help you create a unique experience for your community.
+
+<Note>
+Premium features are available to servers that support Fire's development. Contact the Fire team to learn about premium access.
+</Note>
+
+## Premium feature overview
+
+<CardGroup cols={2}>
+  <Card title="Self-assignable ranks" icon="users" href="#self-assignable-ranks">
+    Let members choose their own roles from a customizable list.
+  </Card>
+  
+  <Card title="Reaction roles (RERO)" icon="hand-pointer" href="#reaction-roles-rero">
+    Members get roles by clicking reactions on messages.
+  </Card>
+  
+  <Card title="Custom bot identity" icon="id-badge" href="#custom-bot-identity">
+    Customize Fire's name, avatar, and profile per server.
+  </Card>
+  
+  <Card title="Role persistence" icon="bookmark" href="#role-persistence">
+    Automatically restore roles when members rejoin.
+  </Card>
+  
+  <Card title="Invite role" icon="user-plus" href="#invite-role">
+    Give roles when members reach invite milestones.
+  </Card>
+  
+  <Card title="Voice channel role" icon="microphone" href="#voice-channel-role">
+    Give roles while members are in voice channels.
+  </Card>
+  
+  <Card title="Vanity redirects" icon="link" href="#vanity-redirects">
+    Create custom short links for your server.
+  </Card>
+</CardGroup>
+
+## Self-assignable ranks
+
+Allow members to give themselves roles from a predefined list.
+
+### Setting up ranks
+
+```bash
+# Configure which roles are self-assignable
+/ranks configure roles:@Color1,@Color2,@Color3
+```
+
+Members can then use:
+
+```bash
+/rank role:@Color1
+```
+
+This toggles the role - if they have it, it's removed; if they don't, it's added.
+
+### Interactive rank menu
+
+When members use `/rank` without specifying a role, they see an interactive menu:
+
+- **5 or fewer roles**: Buttons for each role
+- **6-25 roles**: Dropdown menu to select roles
+- **Color-coded**: Green if they don't have the role, red if they do
+
+<Accordion title="How do rank buttons work?">
+If your server has 5 or fewer self-assignable ranks, Fire displays them as buttons. The buttons are:
+- **Green (Success)** - You don't have this role, click to add it
+- **Red (Danger)** - You have this role, click to remove it
+- **Emoji support** - If the role name starts with an emoji, it's shown on the button
+</Accordion>
+
+**Benefits:**
+- Let members customize their experience
+- Great for color roles, hobby roles, or interest groups
+- No need for staff to manually assign roles
+- Members can change anytime
+
+**Use cases:**
+- Color roles for profile customization
+- Ping roles for announcement preferences
+- Interest-based roles (Gaming, Art, Music, etc.)
+- Region/timezone roles
+- Pronoun roles
+
+<Warning>
+Make sure Fire's role is higher than the self-assignable roles in your server's role hierarchy, otherwise it won't be able to assign them.
+</Warning>
+
+## Reaction roles (RERO)
+
+Create messages where members react to get roles automatically.
+
+### Setting up RERO
+
+```bash
+/rero setup
+```
+
+This creates an interactive setup process:
+
+<Steps>
+  <Step title="Create or select message">
+    Choose an existing message or have Fire create a new one.
+  </Step>
+  
+  <Step title="Add role mappings">
+    For each role, specify which emoji should trigger it.
+  </Step>
+  
+  <Step title="Configure behavior">
+    Choose if members can have multiple roles or only one at a time.
+  </Step>
+  
+  <Step title="Activate">
+    Fire adds the reactions, and the system is live!
+  </Step>
+</Steps>
+
+### RERO features
+
+- **Multiple reactions**: Support for up to 20 different role reactions per message
+- **Custom emojis**: Use server custom emojis or standard Unicode emojis
+- **Exclusive roles**: Option to allow only one role at a time
+- **Remove on unreact**: Automatically remove role when member removes reaction
+
+**Example setup:**
+```
+📱 React with 📱 for Mobile Notifications
+💻 React with 💻 for Desktop Updates  
+🎮 React with 🎮 for Gaming Events
+🎨 React with 🎨 for Art Showcase
+```
+
+<Info>
+REaction ROles (RERO) are perfect for role selection channels where you want members to pick their own roles visually.
+</Info>
+
+## Custom bot identity
+
+Customize how Fire appears in your server with a unique name, avatar, and bio.
+
+### Update bot identity
+
+```bash
+/identity update name:"ServerHelper" avatar:https://example.com/avatar.png
+```
+
+**Customizable elements:**
+- **Name**: Change Fire's display name in your server (up to 32 characters)
+- **Avatar**: Set a custom avatar image for your server
+- **Banner**: Set a custom banner (Premium+ tier)
+- **Bio**: Custom "About Me" section
+
+### Reset identity
+
+Return to Fire's default appearance:
+
+```bash
+# Reset everything
+/identity reset
+
+# Reset specific elements
+/identity reset avatar
+/identity reset banner
+/identity reset bio
+```
+
+<Note>
+Custom identity is per-server. Each server with premium can have its own unique Fire appearance.
+</Note>
+
+**Why customize identity?**
+- Match your server's branding and theme
+- Make Fire feel like a native part of your community
+- Create multiple "personalities" for different servers
+- Professional appearance for business/brand servers
+
+## Role persistence
+
+Automatically restore roles when members rejoin your server.
+
+```bash
+/rolepersist enable
+```
+
+When enabled:
+- Fire tracks which roles each member has
+- If they leave and rejoin, roles are automatically restored
+- Prevents role hopping to reset roles
+- Great for preventing punishment evasion
+
+**Configuration options:**
+- Enable/disable role persistence
+- Exclude specific roles from being persisted
+- Clear persisted data for specific users
+
+<Warning>
+Role persistence won't restore roles that have been deleted or that Fire doesn't have permission to assign.
+</Warning>
+
+## Invite role
+
+Reward members for inviting others to your server.
+
+```bash
+/inviterole configure role:@Recruiter invites:10
+```
+
+Members automatically receive the role when they reach the specified number of invites.
+
+**Features:**
+- Track invite counts per member
+- Multiple tiers (different roles for 5, 10, 25, 50+ invites)
+- Automatic role assignment
+- Prevents invite farming with leave tracking
+
+**Use cases:**
+- Reward active recruiters
+- Create invite-based rank systems
+- Incentivize server growth
+- Recognition for community builders
+
+<Info>
+Fire tracks invites even if someone leaves and rejoins, making it harder to game the system.
+</Info>
+
+## Voice channel role
+
+Automatically give roles to members while they're in specific voice channels.
+
+```bash
+/vcrole set channel:#Music role:@Listening
+```
+
+Members get the role when they join the voice channel and lose it when they leave.
+
+**Use cases:**
+- Show who's currently in voice
+- Give permissions while in specific channels
+- Visual indicators for voice activity
+- Temporary access roles
+
+**Example:**
+```
+Channel: 🎮 Gaming
+Role: @Currently Gaming (visible color role)
+
+Result: Members have a colored role while gaming
+```
+
+## Vanity redirects
+
+Create custom short URLs that redirect to your server invite or other links.
+
+### Create a redirect
+
+```bash
+/redirect create code:myserver url:https://discord.gg/your-invite
+```
+
+This creates a redirect at `https://fire.gaminggeek.dev/myserver` (example)
+
+### Manage redirects
+
+```bash
+# View your redirects
+/redirect view
+
+# Delete a redirect
+/redirect delete code:myserver
+```
+
+**Benefits:**
+- Memorable, branded links
+- Easier to share than long Discord invites
+- Can update destination without changing link
+- Professional appearance
+
+<Note>
+Redirect codes must be unique across all Fire servers. Popular names may already be taken.
+</Note>
+
+## Premium tiers
+
+Different premium tiers unlock different features:
+
+<Tabs>
+  <Tab title="Premium">
+    ### Standard Premium
+    
+    - Self-assignable ranks (up to 25 roles)
+    - Reaction roles (RERO)
+    - Role persistence
+    - Invite roles
+    - Voice channel roles
+    - Custom bot name and avatar
+  </Tab>
+  
+  <Tab title="Premium+">
+    ### Premium Plus
+    
+    Everything in Premium, plus:
+    - Custom bot banner
+    - Custom bot bio
+    - Vanity redirects (up to 5)
+    - Priority support
+    - Early access to new features
+  </Tab>
+</Tabs>
+
+## Getting premium
+
+To get Fire Premium for your server:
+
+<Steps>
+  <Step title="Join Fire's support server">
+    Connect with the Fire team and community.
+  </Step>
+  
+  <Step title="Contact the team">
+    Ask about premium options and pricing.
+  </Step>
+  
+  <Step title="Choose your tier">
+    Select Premium or Premium+ based on your needs.
+  </Step>
+  
+  <Step title="Activate premium">
+    Once approved, premium features are instantly available.
+  </Step>
+</Steps>
+
+<Info>
+Premium helps support Fire's development and hosting costs while giving you access to powerful features.
+</Info>
+
+## Premium best practices
+
+<CardGroup cols={2}>
+  <Card title="Plan your ranks" icon="list-check">
+    Think about which roles make sense as self-assignable before setting up.
+  </Card>
+  
+  <Card title="Create clear RERO messages" icon="message">
+    Make reaction role messages easy to understand with clear instructions.
+  </Card>
+  
+  <Card title="Brand consistently" icon="palette">
+    Use custom identity to match your server's theme and colors.
+  </Card>
+  
+  <Card title="Monitor invite roles" icon="chart-line">
+    Check that invite role milestones align with your server growth goals.
+  </Card>
+</CardGroup>
+
+## Premium command summary
+
+| Command | Description |
+|---------|-------------|
+| `/rank` | View or toggle self-assignable ranks |
+| `/rero` | Set up reaction roles |
+| `/identity update` | Customize bot appearance |
+| `/identity reset` | Reset bot to default |
+| `/rolepersist` | Configure role persistence |
+| `/inviterole` | Set up invite-based roles |
+| `/vcrole` | Configure voice channel roles |
+| `/redirect create` | Create vanity URL redirect |
+| `/redirect view` | View your redirects |
+| `/redirect delete` | Delete a redirect |
+
+## Support
+
+Need help with premium features? 
+
+- Join Fire's support server for assistance
+- Check the documentation for detailed guides  
+- Premium members get priority support
+
+<Note>
+All premium features respect Discord's rate limits and guidelines to ensure reliability and performance.
+</Note>

@@ -1,0 +1,249 @@
+---
+title: Server setup
+description: Complete guide to setting up Fire in your Discord server
+---
+
+This guide will walk you through the initial configuration of Fire in your Discord server. Fire is a powerful moderation and utility bot that requires proper setup to function optimally.
+
+## Prerequisites
+
+Before configuring Fire, ensure you have:
+
+- **Manage Server** permission in your Discord server
+- Fire bot invited to your server with appropriate permissions
+- Understanding of your server's moderation needs
+
+<Note>
+If you haven't invited Fire yet, visit the [quickstart guide](/quickstart) to get started.
+</Note>
+
+## Initial setup steps
+
+<Steps>
+  <Step title="Configure server language">
+    Set Fire's language for your server to ensure all messages and responses appear in your preferred language.
+
+    Use the `/language` command to view available languages or set a new one:
+
+    ```
+    /language <language>
+    ```
+
+    **Available options:**
+    - English (en-US)
+    - Spanish (es-ES)
+    - French (fr-FR)
+    - German (de-DE)
+    - And more...
+
+    <Note>
+    Individual users can also set their own language preference, which will override the server default for their interactions.
+    </Note>
+  </Step>
+
+  <Step title="Set up moderator roles">
+    Define which roles in your server should have moderator permissions for Fire commands.
+
+    ```
+    /moderators add <role>
+    ```
+
+    To view current moderators:
+
+    ```
+    /moderators list
+    ```
+
+    To remove a moderator role:
+
+    ```
+    /moderators remove <role>
+    ```
+
+    <Warning>
+    Moderator roles can execute powerful moderation commands. Only assign this to trusted roles.
+    </Warning>
+  </Step>
+
+  <Step title="Configure welcome messages">
+    Set up automatic welcome messages for new members joining your server.
+
+    ```
+    /joinmsg <channel> <message>
+    ```
+
+    **Available variables:**
+    - `{user}` - Mentions the user
+    - `{user.mention}` - User mention format
+    - `{user.name}` - Username
+    - `{user.displayname}` - Display name
+    - `{guild}` or `{server}` - Server name
+    - `{count}` - Total member count
+    - `{count.suffix}` - Member count with suffix (1st, 2nd, etc.)
+
+    **Example:**
+    ```
+    Welcome {user.mention} to {guild}! You're our {count.suffix} member!
+    ```
+
+    To disable welcome messages:
+    ```
+    /joinmsg disable
+    ```
+  </Step>
+
+  <Step title="Configure leave messages">
+    Set up automatic messages when members leave your server.
+
+    ```
+    /leavemsg <channel> <message>
+    ```
+
+    Uses the same variables as join messages.
+
+    To disable:
+    ```
+    /leavemsg disable
+    ```
+  </Step>
+
+  <Step title="Set up logging channels">
+    Configure where Fire should send moderation, action, and member logs.
+
+    ```
+    /logging toggle <log-type> <channel>
+    ```
+
+    See the [Logging](/configuration/auto-moderation#logging) section for detailed configuration options.
+  </Step>
+
+  <Step title="Configure auto-role">
+    Automatically assign roles to new members when they join.
+
+    For regular members:
+    ```
+    /autorole <role>
+    ```
+
+    For bots:
+    ```
+    /autorole <role> --bot
+    ```
+
+    To delay role assignment until first message:
+    ```
+    /autorole <role> --delay
+    ```
+
+    <Note>
+    The `--delay` flag is useful for combating raid bots, as it only assigns the role after the user sends their first message.
+    </Note>
+
+    To disable:
+    ```
+    /autorole
+    ```
+  </Step>
+</Steps>
+
+## Advanced configuration
+
+### Blacklisting users
+
+Prevent specific users from using Fire commands in your server:
+
+```
+/blacklist <user> [reason]
+```
+
+To remove a user from the blacklist, run the same command again.
+
+<Warning>
+Blacklisted users cannot use any Fire commands, but this doesn't affect their ability to view or send messages in your server.
+</Warning>
+
+### Server visibility
+
+Control whether your server appears on Fire's public server list:
+
+```
+/public
+```
+
+This toggles your server's visibility on and off.
+
+## Verifying your setup
+
+After completing the initial setup, verify that:
+
+<AccordionGroup>
+  <Accordion title="Fire has required permissions">
+    Fire needs the following permissions to function properly:
+    - Manage Messages
+    - Manage Roles
+    - Manage Nicknames
+    - Ban Members
+    - Kick Members
+    - View Audit Log
+    - Send Messages
+    - Embed Links
+
+    Check Fire's role in Server Settings > Roles to ensure these are enabled.
+  </Accordion>
+
+  <Accordion title="Logging channels are accessible">
+    Fire must be able to:
+    - View the logging channels
+    - Send messages in logging channels
+    - Embed links in logging channels
+
+    Test by running `/logging toggle` to verify channel access.
+  </Accordion>
+
+  <Accordion title="Role hierarchy is correct">
+    Fire's role must be:
+    - Higher than roles it needs to assign (autorole, mute role)
+    - Higher than roles of users it needs to moderate
+    - Below admin/owner roles for security
+
+    Adjust role positions in Server Settings > Roles if needed.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+Now that your server is set up, configure:
+
+<CardGroup cols={2}>
+  <Card title="Permissions" icon="shield-check" href="/configuration/permissions">
+    Fine-tune command access and channel restrictions
+  </Card>
+  <Card title="Auto-moderation" icon="robot" href="/configuration/auto-moderation">
+    Enable automated moderation features
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Commands aren't working">
+    1. Verify Fire has Send Messages permission in the channel
+    2. Check that your role has the required permissions
+    3. Ensure the command isn't restricted in that channel
+    4. Try using the command in a different channel
+  </Accordion>
+
+  <Accordion title="Welcome messages aren't sending">
+    1. Verify Fire can send messages in the welcome channel
+    2. Check that the welcome channel is set correctly
+    3. Ensure the welcome message is configured
+    4. Test by having someone join or using `/joinmsg` to preview
+  </Accordion>
+
+  <Accordion title="Auto-role isn't working">
+    1. Verify Fire's role is higher than the auto-role
+    2. Check that Fire has Manage Roles permission
+    3. Ensure the role isn't managed by an integration
+    4. Verify the role isn't the @everyone role
+  </Accordion>
+</AccordionGroup>

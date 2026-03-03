@@ -1,0 +1,461 @@
+---
+title: Premium Commands
+description: Premium-only features and commands
+icon: star
+---
+
+## Overview
+
+Fire Premium unlocks advanced features and commands for enhanced server management and customization. Premium is available through Fire Plus subscription.
+
+<Note>
+Learn more about Fire Premium and subscribe at [inv.wtf/plus](https://inv.wtf/plus)
+</Note>
+
+## Premium Features
+
+### What's Included
+
+<CardGroup cols={2}>
+  <Card title="Reaction Roles" icon="hand-pointer">
+    Advanced reaction role management with multiple emojis and roles
+  </Card>
+  
+  <Card title="Custom Redirects" icon="arrow-right">
+    Create custom redirect links for your community
+  </Card>
+  
+  <Card title="Custom Identity" icon="user">
+    Customize Fire's avatar, banner, and bio in your server
+  </Card>
+  
+  <Card title="Invite Roles" icon="user-plus">
+    Automatically assign roles based on which invite was used
+  </Card>
+  
+  <Card title="Role Persist" icon="clock-rotate-left">
+    Automatically restore member roles when they rejoin
+  </Card>
+  
+  <Card title="Voice Channel Roles" icon="microphone">
+    Assign roles when members join voice channels
+  </Card>
+</CardGroup>
+
+---
+
+## Reaction Roles
+
+Create interactive reaction roles where members can self-assign roles by clicking reactions.
+
+**Command:** `/rero` or `/reactionrole`
+
+<ParamField path="role" type="Role" required>
+  The role to assign when members react
+</ParamField>
+
+**How it works:**
+
+1. Run the command with a role
+2. React to any message with an emoji
+3. Fire sets up the reaction role
+4. Members click the same emoji to get/remove the role
+
+**Example:**
+```
+/rero role:@Gamer
+# Then react to your announcement with 🎮
+# Members click 🎮 to get @Gamer role
+```
+
+**Setup Flow:**
+1. Post a message explaining the roles
+2. Use `/rero role:@RoleName`
+3. React to the message
+4. Confirm the reaction role setup
+5. Repeat for other roles
+
+**Features:**
+- Multiple reaction roles per message
+- Add/remove by clicking reactions
+- Works with both Unicode and custom emojis
+- Automatic role synchronization
+
+<Warning>
+The role must be below Fire's highest role and not managed by another bot or integration.
+</Warning>
+
+---
+
+## Custom Redirects
+
+Create custom short URLs that redirect to any link.
+
+### Create Redirect
+
+**Command:** `/redirect-create`
+
+<ParamField path="code" type="String" required>
+  The short code for your redirect (e.g., "discord")
+</ParamField>
+
+<ParamField path="url" type="URL" required>
+  The destination URL
+</ParamField>
+
+**Example:**
+```
+/redirect-create code:discord url:https://discord.gg/yourinvite
+```
+
+Creates: `inv.wtf/discord` → `https://discord.gg/yourinvite`
+
+---
+
+### View Redirects
+
+**Command:** `/redirect-view`
+
+Lists all your custom redirects with:
+- Redirect code
+- Destination URL
+- Click count
+- Creation date
+
+---
+
+### Delete Redirect
+
+**Command:** `/redirect-delete`
+
+<ParamField path="code" type="String" required>
+  The redirect code to delete
+</ParamField>
+
+**Example:**
+```
+/redirect-delete code:oldlink
+```
+
+---
+
+## Custom Identity
+
+Customize how Fire appears in your server.
+
+### Update Identity
+
+**Command:** `/identity-update`
+
+<ParamField path="avatar" type="Image URL">
+  Custom avatar URL for Fire in your server
+</ParamField>
+
+<ParamField path="banner" type="Image URL">
+  Custom banner URL for Fire's profile
+</ParamField>
+
+<ParamField path="bio" type="String">
+  Custom about me text
+</ParamField>
+
+**Example:**
+```
+/identity-update avatar:https://example.com/avatar.png bio:Custom support bot for our server
+```
+
+---
+
+### Reset Identity
+
+Reset Fire's identity to default.
+
+**Commands:**
+- `/identity-reset` - Reset everything
+- `/identity-reset-avatar` - Reset only avatar
+- `/identity-reset-banner` - Reset only banner
+- `/identity-reset-bio` - Reset only bio
+
+**Example:**
+```
+/identity-reset-avatar
+```
+
+<Note>
+Custom identity only appears in your server. Other servers see Fire's default appearance.
+</Note>
+
+---
+
+## Invite Roles
+
+Automatically assign roles based on which invite link was used to join.
+
+**Command:** `/inviterole`
+
+<ParamField path="invite" type="Invite" required>
+  The invite code to track
+</ParamField>
+
+<ParamField path="role" type="Role" required>
+  The role to assign to members who use this invite
+</ParamField>
+
+**Example:**
+```
+/inviterole invite:abc123 role:@YouTube
+```
+
+**Use Cases:**
+- Track where new members come from
+- Give special roles to members from specific sources
+- Organize members by recruitment method
+- Reward referrers
+
+**Tracking:**
+View invite statistics in `/server` to see:
+- Which invites are most used
+- How many members joined from each source
+- Active vs expired invites
+
+---
+
+## Role Persistence
+
+Automatically restore roles when members rejoin your server.
+
+**Command:** `/rolepersist`
+
+<ParamField path="enabled" type="Boolean" required>
+  Enable or disable role persistence
+</ParamField>
+
+**Example:**
+```
+/rolepersist enabled:true
+```
+
+**How it works:**
+1. Enable role persistence
+2. When a member leaves, Fire saves their roles
+3. When they rejoin, roles are automatically restored
+4. Works for all roles Fire can manage
+
+**Benefits:**
+- Members don't lose their roles if they accidentally leave
+- Reduces support tickets about lost roles
+- Improves member experience
+- Handles rejoins automatically
+
+<Note>
+Only roles below Fire's highest role can be restored. Managed roles (bot roles, boosts) are skipped.
+</Note>
+
+---
+
+## Voice Channel Roles
+
+Assign temporary roles when members join specific voice channels.
+
+**Command:** `/vcrole`
+
+<ParamField path="channel" type="Voice Channel" required>
+  The voice channel to monitor
+</ParamField>
+
+<ParamField path="role" type="Role" required>
+  The role to assign when members join
+</ParamField>
+
+**Example:**
+```
+/vcrole channel:Music Lounge role:@Music Listener
+```
+
+**Behavior:**
+- Role is added when member joins the voice channel
+- Role is removed when member leaves the voice channel
+- Works with multiple voice channels
+- Instant role assignment
+
+**Use Cases:**
+- Give DJ permissions in music channels
+- Grant temporary access to channels
+- Track who's in voice
+- Create voice-specific features
+
+---
+
+## Rank Cards
+
+Customize leveling rank cards for your server.
+
+**Command:** `/rank`
+
+<ParamField path="theme" type="String">
+  Card theme/style
+</ParamField>
+
+<ParamField path="color" type="Color">
+  Primary color for the card
+</ParamField>
+
+<Note>
+Rank cards require Fire Premium and the leveling system to be enabled.
+</Note>
+
+---
+
+## Premium Limits
+
+| Feature | Free | Premium |
+|---------|------|--------|
+| Reaction Roles | 0 | Unlimited |
+| Custom Redirects | 0 | 25 |
+| Invite Roles | 0 | Unlimited |
+| VC Roles | 0 | Unlimited |
+| Saved Quotes | 5 | 10 |
+| Tags | 50 | 100 |
+| Custom Identity | No | Yes |
+| Role Persist | No | Yes |
+
+---
+
+## Getting Premium
+
+### How to Subscribe
+
+1. Visit [inv.wtf/plus](https://inv.wtf/plus)
+2. Select your plan (monthly or yearly)
+3. Complete payment
+4. Premium activates immediately
+5. Use premium commands in your server
+
+### Premium Plans
+
+**Fire Plus Monthly**
+- All premium features
+- Priority support
+- Early access to new features
+- Cancel anytime
+
+**Fire Plus Yearly**
+- All monthly benefits
+- 2 months free
+- Best value
+
+---
+
+## Premium Support
+
+Premium subscribers get:
+- Priority support in the support server
+- Dedicated premium support channel
+- Faster response times
+- Direct line to developers
+- Early bug fixes
+
+**Get Help:**
+1. Join the support server: `/support`
+2. Go to #premium-support
+3. Verify your subscription
+4. Get priority assistance
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Reaction Roles">
+    - Create a dedicated #roles channel
+    - Group related roles together
+    - Use clear emoji-role associations
+    - Explain what each role does
+    - Keep the message clean and organized
+  </Accordion>
+  
+  <Accordion title="Custom Redirects">
+    - Use memorable, short codes
+    - Keep destination URLs updated
+    - Track clicks to measure success
+    - Use for invite links, social media, important pages
+  </Accordion>
+  
+  <Accordion title="Invite Roles">
+    - Create different invites for different sources
+    - Use descriptive role names (e.g., @FromYouTube)
+    - Monitor which sources bring the most members
+    - Adjust marketing based on statistics
+  </Accordion>
+  
+  <Accordion title="Role Persistence">
+    - Enable it to improve member experience
+    - Combine with invite roles for better tracking
+    - Regularly audit saved roles
+    - Document the feature for members
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Example: Reaction Role Setup
+
+Here's a complete reaction role setup example:
+
+**1. Create the message:**
+```
+Go to #roles and post:
+
+"React to get roles!
+🎮 - Gamer
+🎨 - Artist  
+🎵 - Music Lover
+💻 - Developer
+📚 - Reader"
+```
+
+**2. Set up reaction roles:**
+```bash
+/rero role:@Gamer
+# React with 🎮
+
+/rero role:@Artist
+# React with 🎨
+
+/rero role:@Music Lover
+# React with 🎵
+
+# Continue for all roles...
+```
+
+**3. Test:**
+- Click each emoji
+- Verify roles are assigned
+- Check that removing reactions removes roles
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Reaction Roles Not Working">
+    - Verify Fire has Manage Roles permission
+    - Check that the role is below Fire's highest role
+    - Ensure the role isn't managed by another integration
+    - Try recreating the reaction role
+  </Accordion>
+  
+  <Accordion title="Role Persist Not Restoring Roles">
+    - Verify feature is enabled
+    - Check Fire has Manage Roles permission
+    - Ensure roles aren't managed roles
+    - Member must have had roles before leaving
+  </Accordion>
+  
+  <Accordion title="Custom Identity Not Showing">
+    - Verify you have premium active
+    - Wait a few minutes for changes to propagate
+    - Try resetting and re-applying
+    - Check that image URLs are valid and accessible
+  </Accordion>
+</AccordionGroup>

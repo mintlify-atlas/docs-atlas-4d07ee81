@@ -1,0 +1,695 @@
+---
+title: Server Management Best Practices
+description: Expert strategies for running a well-managed Discord server with Fire
+icon: list-check
+---
+
+Maximize Fire's capabilities with proven strategies for efficient server management, member safety, and community growth.
+
+## Initial Server Setup
+
+### Role Hierarchy Planning
+
+Proper role structure is critical for Fire's functionality:
+
+<Steps>
+  <Step title="Position Fire's role">
+    Place Fire's role **above all roles it needs to manage**:
+    - Above moderation roles
+    - Above auto-assigned roles
+    - Above reaction roles
+    - Below admin/owner roles only
+  </Step>
+  
+  <Step title="Create role categories">
+    Organize roles into logical groups:
+    - **Staff**: Admin, Moderator, Helper
+    - **Automated**: Muted, Verified, Rules Accepted
+    - **Self-Assign**: Pronoun, Game, Region roles
+    - **Special**: Nitro Booster, VIP, Partner
+  </Step>
+  
+  <Step title="Set role colors strategically">
+    - Staff roles: Distinctive colors (red, blue, gold)
+    - Auto-roles: Neutral/no color
+    - Self-assign ranks: Member-chosen colors
+  </Step>
+</Steps>
+
+<Warning>
+**Common Hierarchy Mistakes:**
+- Fire's role below managed roles → Commands fail
+- Moderator role above Fire → Cannot manage moderators
+- Multiple "Muted" roles → Confusion and gaps in coverage
+</Warning>
+
+### Permission Configuration
+
+<Tabs>
+  <Tab title="Essential Permissions">
+    **Fire needs these in every server:**
+    - View Channels
+    - Send Messages
+    - Embed Links
+    - Attach Files
+    - Read Message History
+    - Add Reactions
+    - Use External Emojis
+  </Tab>
+  
+  <Tab title="Moderation Permissions">
+    **For moderation features:**
+    - Manage Messages (delete, purge)
+    - Kick Members
+    - Ban Members
+    - Timeout Members
+    - Manage Roles (reaction roles, ranks)
+    - Manage Nicknames
+  </Tab>
+  
+  <Tab title="Advanced Permissions">
+    **For premium/advanced features:**
+    - Manage Webhooks (logging)
+    - Manage Channels (auto-moderation)
+    - View Audit Log (enhanced logging)
+  </Tab>
+</Tabs>
+
+<Tip>
+**Quick Permission Check:**
+```bash
+/botpermissions
+# Shows Fire's permissions and identifies missing ones
+```
+</Tip>
+
+## Moderation Strategy
+
+### Auto-Moderation Configuration
+
+Balance automation with human judgment:
+
+<AccordionGroup>
+  <Accordion title="Spam Prevention" icon="shield-halved">
+    **Recommended Settings:**
+    - Message spam: 5 messages in 5 seconds
+    - Mention spam: 5 mentions per message
+    - Emoji spam: 10 emojis per message
+    - Enable duplicate message detection
+    
+    **Action:** Timeout for 5-10 minutes on first offense
+  </Accordion>
+
+  <Accordion title="Link Filtering" icon="link">
+    **Tiered Approach:**
+    1. Block known malicious domains (always on)
+    2. Restrict Discord invites to specific channels
+    3. Allow trusted domains (YouTube, Twitter, etc.)
+    4. Require link approval in new member channels
+    
+    **Whitelist:** Add your server's invite and partner servers
+  </Accordion>
+
+  <Accordion title="Word Filters" icon="message-slash">
+    **Smart Filtering:**
+    - Focus on clear-cut violations only
+    - Avoid over-filtering (creates evasion attempts)
+    - Use wildcard sparingly
+    - Regularly review false positives
+    
+    **Action:** Delete + warning (not instant ban)
+  </Accordion>
+
+  <Accordion title="New Member Protection" icon="user-shield">
+    **First 10 minutes:**
+    - Restrict to welcome/rules channels
+    - No link posting
+    - Slowmode in accessible channels
+    - Auto-role after verification
+    
+    **Prevents:** Raid accounts, spam bots
+  </Accordion>
+</AccordionGroup>
+
+### Logging Best Practices
+
+Create a comprehensive audit trail:
+
+```bash
+# Essential log channels
+/config set modlog.moderation #mod-logs
+/config set modlog.action #action-logs
+/config set modlog.members #member-logs
+/config set modlog.messages #message-logs
+```
+
+<Tip>
+**Channel Organization:**
+
+1. **#mod-logs**: Moderation actions (bans, kicks, timeouts, warnings)
+2. **#action-logs**: Configuration changes, role updates
+3. **#member-logs**: Joins, leaves, nickname changes
+4. **#message-logs**: Deleted/edited messages
+
+**Permissions:** Restrict to moderators only, prevent deletion
+</Tip>
+
+### Moderation Workflow
+
+<Steps>
+  <Step title="Respond to Reports">
+    Use tickets or a dedicated report channel:
+    ```bash
+    /config set moderation.report-channel #reports
+    ```
+    Review reports daily, respond within 24 hours.
+  </Step>
+  
+  <Step title="Document Actions">
+    Always include reasons in moderation commands:
+    ```bash
+    /warn @user Advertising in #general
+    /timeout @user 1h Spam after warning
+    /ban @user Continued rule violations (3rd warning)
+    ```
+  </Step>
+  
+  <Step title="Review Regularly">
+    Weekly moderation team meeting:
+    - Review recent cases
+    - Discuss edge cases
+    - Update guidelines
+    - Check for pattern violations
+  </Step>
+  
+  <Step title="Track Repeat Offenders">
+    Use Fire's case system:
+    ```bash
+    /case @user
+    # Shows complete moderation history
+    ```
+    Escalate actions for repeat offenders.
+  </Step>
+</Steps>
+
+## Member Engagement
+
+### Role-Based Organization
+
+**Self-Assignable Ranks** (Premium feature):
+
+<CardGroup cols={2}>
+  <Card title="Pronoun Roles" icon="user">
+    - he/him, she/her, they/them
+    - Display with color for visibility
+    - Update pronouns regularly
+  </Card>
+  
+  <Card title="Interest Roles" icon="gamepad">
+    - Game titles
+    - Hobbies
+    - Content preferences
+    - Trigger notifications for relevant announcements
+  </Card>
+  
+  <Card title="Region/Timezone Roles" icon="globe">
+    - Geographic regions
+    - Timezone groups
+    - Language preferences
+    - Coordinate events effectively
+  </Card>
+  
+  <Card title="Notification Roles" icon="bell">
+    - Event announcements
+    - Content updates
+    - Ping opt-in
+    - Member-controlled communication
+  </Card>
+</CardGroup>
+
+```bash
+# Configure self-assignable ranks
+/config set utils.ranks
+# Select all roles members can self-assign
+
+# Members then use:
+/rank
+# Interactive button/dropdown interface appears
+```
+
+### Welcome Experience
+
+<Tabs>
+  <Tab title="Automated Welcome">
+    ```bash
+    /config set greet.message #welcome
+    ```
+    
+    **Message Template:**
+    ```
+    Welcome {mention}! 👋
+    
+    📜 Read the rules in {#rules}
+    🎫 Get roles in {#roles}
+    💬 Introduce yourself in {#introductions}
+    
+    You're member #{membercount}!
+    ```
+  </Tab>
+  
+  <Tab title="Verification System">
+    Use reaction roles for verification:
+    
+    1. Create rules message
+    2. Add reaction role: `/reactionrole @Verified`
+    3. React with ✅
+    4. Members must react to get access
+    5. Lock channels to require @Verified role
+  </Tab>
+  
+  <Tab title="Onboarding Tags">
+    Create helpful tags:
+    
+    ```bash
+    /tag create getstarted <detailed first steps>
+    /tag create rules <link to rules>
+    /tag create roles <how to get roles>
+    /tag create help <how to get support>
+    ```
+    
+    Pin `/tag getstarted` in #welcome
+  </Tab>
+</Tabs>
+
+### Community Building
+
+<Tip>
+**High-Engagement Features:**
+
+1. **Starboard** - Highlight best messages
+   ```bash
+   /config set starboard.channel #starboard
+   /config set starboard.stars 3
+   ```
+
+2. **Custom Tags** - Create inside jokes, memes, useful references
+   - Keep updated and relevant
+   - Remove outdated tags
+   - Enable slash commands for discoverability
+
+3. **Voice Channel Roles** - Show who's active
+   ```bash
+   /vcrole #general-vc @In Voice
+   ```
+
+4. **Invite Tracking** - Recognize recruiters
+   ```bash
+   /inviterole <invite> @Recruiter
+   ```
+</Tip>
+
+## Performance Optimization
+
+### Reduce Bot Clutter
+
+<Steps>
+  <Step title="Use ephemeral responses">
+    Enable ephemeral mode for tags:
+    ```bash
+    /tag slash ephemeral
+    ```
+    Responses only visible to command user.
+  </Step>
+  
+  <Step title="Delete trigger messages">
+    Use `dtag` for clean responses:
+    ```bash
+    !dtag rules
+    # Command message auto-deleted
+    ```
+  </Step>
+  
+  <Step title="Dedicated bot channel">
+    Create #bot-commands for:
+    - Command testing
+    - Member experiments
+    - Non-critical commands
+  </Step>
+</Steps>
+
+### Channel Organization
+
+**Recommended Structure:**
+
+```
+📋 INFORMATION
+  ├─ #rules
+  ├─ #announcements
+  └─ #faq
+
+💬 COMMUNITY  
+  ├─ #general
+  ├─ #introductions
+  └─ #media
+
+🎮 GAMING
+  ├─ #game-1
+  └─ #game-2
+
+🔧 UTILITIES
+  ├─ #roles
+  ├─ #bot-commands
+  └─ #tickets
+
+🛡️ MODERATION (Staff only)
+  ├─ #mod-chat
+  ├─ #mod-logs
+  ├─ #action-logs
+  └─ #reports
+```
+
+<Tip>
+**Channel Permissions Best Practices:**
+- Default: Read-only for announcements
+- Enable slowmode in active channels (3-5s)
+- Restrict media/links in general chat initially
+- Create thread-only channels for organized discussions
+</Tip>
+
+## Security & Safety
+
+### Account Protection
+
+<Warning>
+**Critical Security Settings:**
+
+1. **Enable 2FA requirement** for moderators
+   - Server Settings → Moderation → Require 2FA
+
+2. **Restrict @everyone permissions**
+   - Remove: Mention @everyone, Manage Webhooks
+   - Review: Administrator permission (avoid when possible)
+
+3. **Verify bot authenticity**
+   - Only invite bots from trusted sources
+   - Check bot permissions before authorizing
+   - Regular audit of server bots
+</Warning>
+
+### Anti-Raid Configuration
+
+```bash
+# Enable verification level
+Server Settings → Moderation → Verification Level: Medium/High
+
+# Auto-moderation for new accounts
+/config set automod.newaccount enabled
+/config set automod.newaccount.age 7d
+```
+
+<AccordionGroup>
+  <Accordion title="Pre-Raid Preparation">
+    **Setup before raids happen:**
+    - Create "lockdown" role (denies Send Messages everywhere)
+    - Pre-write lockdown announcement
+    - Document emergency procedures for mods
+    - Enable slowmode presets
+  </Accordion>
+
+  <Accordion title="During Raid Response">
+    **Immediate actions:**
+    1. Raise verification level to Highest
+    2. Enable slowmode (30s+) in all public channels
+    3. Temporarily disable invites
+    4. Ban obvious raid accounts
+    5. Monitor #member-logs for join patterns
+  </Accordion>
+
+  <Accordion title="Post-Raid Recovery">
+    **After raid ends:**
+    1. Review and ban missed accounts
+    2. Restore normal verification level
+    3. Remove slowmode
+    4. Re-enable invites
+    5. Update automod rules based on raid patterns
+    6. Post reassurance to community
+  </Accordion>
+</AccordionGroup>
+
+### Data Privacy
+
+<Tip>
+**Responsible Data Handling:**
+
+- Regularly purge old moderation logs (1+ year old)
+- Don't share member data outside mod team
+- Respect member privacy in logging
+- Document data retention policies
+- Comply with GDPR/data requests
+
+Fire doesn't sell or share data. See [Privacy Policy](https://fire.gaminggeek.dev/privacy).
+</Tip>
+
+## Maintenance Routine
+
+### Daily Tasks
+
+<Tabs>
+  <Tab title="Morning Check" icon="sun">
+    - Review overnight moderation logs
+    - Check reports/tickets
+    - Respond to pending actions
+    - Monitor member count changes
+  </Tab>
+  
+  <Tab title="Evening Review" icon="moon">
+    - Check automod stats
+    - Review day's moderation actions
+    - Update FAQ/tags if needed
+    - Plan next day's announcements
+  </Tab>
+</Tabs>
+
+### Weekly Tasks
+
+<Steps>
+  <Step title="Configuration Review">
+    - Verify automod effectiveness
+    - Check for false positives
+    - Update filters based on trends
+    - Review role assignments
+  </Step>
+  
+  <Step title="Community Health">
+    - Analyze active channels
+    - Review member feedback
+    - Check engagement metrics
+    - Plan community events
+  </Step>
+  
+  <Step title="Staff Meeting">
+    - Discuss challenging cases
+    - Update guidelines
+    - Share feedback
+    - Plan improvements
+  </Step>
+</Steps>
+
+### Monthly Tasks
+
+<CardGroup cols={2}>
+  <Card title="Tag Maintenance" icon="tags">
+    - Review all tags
+    - Update outdated content
+    - Remove unused tags
+    - Create new helpful tags
+  </Card>
+  
+  <Card title="Role Audit" icon="users-gear">
+    - Clean up unused roles
+    - Verify role hierarchy
+    - Update role descriptions
+    - Check self-assign ranks
+  </Card>
+  
+  <Card title="Permissions Review" icon="shield">
+    - Audit channel permissions
+    - Review bot permissions
+    - Check role permissions
+    - Update as needed
+  </Card>
+  
+  <Card title="Analytics Review" icon="chart-line">
+    - Member growth trends
+    - Active user metrics
+    - Message volume by channel
+    - Moderation action frequency
+  </Card>
+</CardGroup>
+
+## Scaling Strategies
+
+### Small Server (< 100 members)
+
+<Tip>
+**Focus Areas:**
+- Personal engagement (know your members)
+- Simple role structure
+- Minimal automation
+- Active recruitment
+- Community-building events
+</Tip>
+
+### Medium Server (100-1,000 members)
+
+<Tip>
+**Key Investments:**
+- Structured moderation team
+- Comprehensive automod
+- Self-service tools (ranks, tags)
+- Organized channels
+- Regular events
+</Tip>
+
+### Large Server (1,000+ members)
+
+<Tip>
+**Critical Systems:**
+- Dedicated mod team with shifts
+- Advanced automod + manual review
+- Extensive logging
+- Ticket system for support
+- Sub-communities/channels
+- Premium features essential
+</Tip>
+
+## Premium Value Maximization
+
+<Card title="Get the Most from Premium" icon="crown">
+**Priority Features to Implement:**
+
+1. **Ranks** - Immediate member engagement boost
+2. **Reaction Roles** - Streamline verification and role assignment
+3. **Unlimited Tags** - Comprehensive knowledge base
+4. **Role Persistence** - Protect VIP members
+5. **Voice Roles** - Show active members
+6. **Custom Identity** - Professional branding
+
+**ROI Indicators:**
+- Reduced mod workload (automod + self-service)
+- Higher member retention (better onboarding)
+- Improved engagement (ranks, tags)
+- Professional appearance (custom identity)
+</Card>
+
+## Troubleshooting Common Issues
+
+<AccordionGroup>
+  <Accordion title="Commands not working">
+    **Debug steps:**
+    1. Check Fire's role position
+    2. Verify channel permissions
+    3. Check for role hierarchy issues
+    4. Test in different channel
+    5. Review audit log for errors
+  </Accordion>
+
+  <Accordion title="Automod too aggressive">
+    **Solutions:**
+    - Review recent false positives
+    - Whitelist trusted members/roles
+    - Adjust thresholds (higher numbers = less strict)
+    - Add exceptions for specific channels
+    - Create appeal process
+  </Accordion>
+
+  <Accordion title="Low engagement">
+    **Improvements:**
+    - Add self-assign roles for personalization
+    - Create events/activities
+    - Enable starboard for highlights
+    - Simplify channel structure
+    - Active moderation presence
+    - Regular announcements
+  </Accordion>
+
+  <Accordion title="Moderation burnout">
+    **Prevention:**
+    - Expand mod team
+    - Increase automod usage
+    - Create mod shifts/schedules
+    - Implement ticket system
+    - Recognize mod contributions
+    - Allow mod breaks
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Techniques
+
+### Multi-Server Management
+
+Managing multiple servers with Fire:
+
+<Steps>
+  <Step title="Standardize configs">
+    Create configuration templates for:
+    - Automod settings
+    - Role structures
+    - Channel layouts
+    - Tag libraries
+  </Step>
+  
+  <Step title="Cross-server coordination">
+    - Use same mod team when possible
+    - Share ban lists (manual process)
+    - Coordinate on raid defense
+    - Unified appeal process
+  </Step>
+  
+  <Step title="Differentiate branding">
+    Use custom identity per server:
+    ```bash
+    /identity update
+    # Different nickname, avatar per server
+    ```
+  </Step>
+</Steps>
+
+### Integration with Other Bots
+
+<Tip>
+**Complementary Bots:**
+
+- **Music bots**: Fire handles moderation, music bot for entertainment
+- **Leveling/XP bots**: Fire for rules, XP bot for gamification  
+- **Utility bots**: Fire for core functions, specialty bots for niche features
+- **Analytics bots**: Fire logs, analytics bot for insights
+
+**Key**: Clear role division prevents redundancy and conflicts
+</Tip>
+
+## Resources & Support
+
+<CardGroup cols={2}>
+  <Card title="Fire Support Server" icon="discord" href="https://inv.wtf/fire">
+    Get help from Fire team and community
+  </Card>
+  
+  <Card title="Feature Documentation" icon="book" href="/features/overview">
+    Detailed feature reference
+  </Card>
+  
+  <Card title="Commands Reference" icon="terminal" href="/commands/overview">
+    Complete command list
+  </Card>
+  
+  <Card title="Premium Features" icon="crown" href="/guides/premium-features">
+    Unlock advanced capabilities
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+This guide represents proven strategies from successful Fire-powered communities. Adapt recommendations to fit your server's unique needs and culture.
+</Note>

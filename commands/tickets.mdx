@@ -1,0 +1,477 @@
+---
+title: Ticket Commands
+description: Set up and manage support ticket system
+icon: ticket
+---
+
+## Overview
+
+Fire's ticket system allows members to create private support channels to get help from staff. Each ticket is a private channel where the member and staff can communicate.
+
+<Note>
+All ticket commands require **Manage Server** permission to configure.
+</Note>
+
+## Initial Setup
+
+### Enable Tickets
+
+Enable the ticket system for your server.
+
+**Command:** `/ticket-enable`
+
+<ParamField path="category" type="Category Channel" required>
+  The category where ticket channels will be created
+</ParamField>
+
+<ParamField path="channel" type="Text Channel" required>
+  The channel where members can create tickets (ticket panel will be posted here)
+</ParamField>
+
+**Example:**
+```
+/ticket-enable category:Support Tickets channel:#create-ticket
+```
+
+**What happens:**
+1. Fire posts a ticket creation panel in the specified channel
+2. Members can click a button to create a ticket
+3. New ticket channels are created in the specified category
+4. Each ticket is private between the member and staff
+
+**Required Bot Permissions:**
+- Manage Channels (to create ticket channels)
+- Send Messages
+- Embed Links
+
+---
+
+## Configuration
+
+### Toggle Tickets
+
+Enable or disable the ticket system without removing configuration.
+
+**Command:** `/ticket-toggle`
+
+Toggles the ticket system on/off. When disabled:
+- Members can't create new tickets
+- Existing tickets remain active
+- Configuration is preserved
+
+---
+
+### Set Ticket Limit
+
+Limit how many open tickets each member can have.
+
+**Command:** `/ticket-limit`
+
+<ParamField path="limit" type="Number" required>
+  Maximum tickets per member (1-5)
+</ParamField>
+
+**Example:**
+```
+/ticket-limit limit:2
+```
+
+**Default:** 1 ticket per member
+
+<Note>
+Prevents members from creating too many tickets at once. Staff can override this limit if needed.
+</Note>
+
+---
+
+### Ticket Name Format
+
+Customize the naming format for ticket channels.
+
+**Command:** `/ticket-name`
+
+<ParamField path="format" type="String">
+  Name format for ticket channels. Use variables:
+  - `{username}` - Member's username
+  - `{id}` - Ticket ID number
+  - `{count}` - Sequential ticket count
+</ParamField>
+
+**Example:**
+```
+/ticket-name format:ticket-{username}
+/ticket-name format:support-{id}
+```
+
+**Default:** `ticket-{id}`
+
+Leave empty to view the current format.
+
+---
+
+### Ticket Description
+
+Set the description shown in the ticket creation panel.
+
+**Command:** `/ticket-description`
+
+<ParamField path="description" type="String">
+  Description text (up to 2048 characters)
+</ParamField>
+
+**Example:**
+```
+/ticket-description description:Click the button below to create a support ticket. Our staff will help you soon!
+```
+
+Leave empty to reset to default description.
+
+---
+
+### Alert Role
+
+Set a role to be pinged when new tickets are created.
+
+**Command:** `/ticket-alert`
+
+<ParamField path="role" type="Role">
+  Role to mention in new tickets
+</ParamField>
+
+**Example:**
+```
+/ticket-alert role:@Support Team
+```
+
+**Benefits:**
+- Staff get notified immediately
+- Faster response times
+- Ensures tickets aren't missed
+
+Leave empty to disable alerts.
+
+<Warning>
+Make sure the alert role is mentionable, or Fire won't be able to ping it.
+</Warning>
+
+---
+
+### Invitable Tickets
+
+Allow ticket creators to invite other members to their tickets.
+
+**Command:** `/ticket-invitable`
+
+Toggles whether members can invite others to their ticket channels.
+
+**When enabled:**
+- Members see an "Invite Member" button in their ticket
+- They can add friends or relevant members
+- Useful for group issues
+
+**When disabled:**
+- Only staff can add members to tickets
+- More private and controlled
+
+---
+
+## Using Tickets (Member Perspective)
+
+### Creating a Ticket
+
+1. Go to the ticket creation channel
+2. Click the "Create Ticket" button
+3. A private channel is created for you
+4. Explain your issue in the ticket
+5. Wait for staff to respond
+
+### In the Ticket
+
+Members can:
+- Send messages to staff
+- Upload files and images
+- Invite others (if enabled)
+- Close the ticket when resolved
+
+---
+
+## Managing Tickets (Staff Perspective)
+
+### New Ticket
+
+Create a ticket on behalf of a member.
+
+**Command:** `/ticket-new`
+
+<ParamField path="member" type="Member" required>
+  Member to create a ticket for
+</ParamField>
+
+<ParamField path="reason" type="String">
+  Initial ticket reason/topic
+</ParamField>
+
+**Example:**
+```
+/ticket-new member:@User reason:Account issue
+```
+
+---
+
+### Add Member
+
+Add a member to an existing ticket.
+
+**Command:** `/ticket-add`
+
+<ParamField path="member" type="Member" required>
+  Member to add to the ticket
+</ParamField>
+
+**Example:**
+```
+/ticket-add member:@Helper
+```
+
+Use this command inside a ticket channel.
+
+---
+
+### Remove Member
+
+Remove a member from a ticket.
+
+**Command:** `/ticket-remove`
+
+<ParamField path="member" type="Member" required>
+  Member to remove from the ticket
+</ParamField>
+
+**Example:**
+```
+/ticket-remove member:@User
+```
+
+<Note>
+You cannot remove the ticket creator. To remove them, close the ticket instead.
+</Note>
+
+---
+
+### Close Ticket
+
+Close and archive a ticket.
+
+**Command:** `/ticket-close`
+
+<ParamField path="reason" type="String">
+  Reason for closing (shown in logs)
+</ParamField>
+
+**Example:**
+```
+/ticket-close reason:Issue resolved
+```
+
+**What happens:**
+1. Ticket channel is deleted
+2. Transcript is saved (if configured)
+3. Logged in mod logs
+4. Member is notified (optional)
+
+---
+
+### List Tickets
+
+View all open tickets.
+
+**Command:** `/ticket-list`
+
+Displays:
+- All open tickets
+- Ticket creator
+- Creation date
+- Staff assigned (if any)
+
+**Example:**
+```
+/ticket-list
+```
+
+---
+
+### Ticket Help
+
+View ticket system help and commands.
+
+**Command:** `/ticket-help`
+
+Shows:
+- Available ticket commands
+- Current configuration
+- Usage instructions
+
+---
+
+## Advanced Features
+
+### Ticket Transcripts
+
+Fire can automatically save ticket transcripts when closed.
+
+**Setup:**
+1. Configure logging with `/logging-configure type:action`
+2. Transcripts are sent to the action log channel
+3. Includes full message history
+
+**Transcript contents:**
+- All messages in the ticket
+- Timestamps
+- Member joins/leaves
+- Attachments (links)
+
+---
+
+### Multiple Ticket Categories
+
+Create different ticket types for different purposes:
+
+**Example Setup:**
+```
+# General Support
+/ticket-enable category:General Support channel:#support
+
+# Report Users
+/ticket-enable category:Reports channel:#report
+
+# Appeals
+/ticket-enable category:Appeals channel:#appeals
+```
+
+<Note>
+Currently, Fire supports one ticket system per server. Use different bots or manual channels for multiple categories.
+</Note>
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Set Clear Expectations">
+    Use `/ticket-description` to explain:
+    - What tickets are for
+    - Expected response time
+    - What information to include
+    - Alternative support options
+  </Accordion>
+  
+  <Accordion title="Alert the Right People">
+    Use `/ticket-alert` to ping a support role, not @everyone. Create a dedicated support team role.
+  </Accordion>
+  
+  <Accordion title="Limit Tickets Wisely">
+    Set `/ticket-limit` to 1-2 to prevent spam, but allow reopening if needed.
+  </Accordion>
+  
+  <Accordion title="Close Inactive Tickets">
+    Regularly review `/ticket-list` and close tickets that are inactive or resolved.
+  </Accordion>
+  
+  <Accordion title="Save Transcripts">
+    Enable action logging to keep records of all tickets for reference and accountability.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Example Configuration
+
+Here's a complete ticket system setup:
+
+```bash
+# 1. Enable ticket system
+/ticket-enable category:Support Tickets channel:#create-ticket
+
+# 2. Customize settings
+/ticket-name format:ticket-{username}
+/ticket-description description:Need help? Click below to open a support ticket!
+/ticket-limit limit:2
+
+# 3. Set up alerts
+/ticket-alert role:@Support Team
+
+# 4. Configure permissions
+/ticket-invitable
+
+# 5. Test it!
+# Go to #create-ticket and create a test ticket
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Create Tickets">
+    **Common causes:**
+    - Fire lacks Manage Channels permission
+    - Category is full (Discord's 50 channel limit)
+    - Ticket system is disabled with `/ticket-toggle`
+    - Member has reached ticket limit
+    
+    **Solutions:**
+    - Verify bot permissions
+    - Create a new category
+    - Enable the system
+    - Increase limit or close old tickets
+  </Accordion>
+  
+  <Accordion title="Tickets Not in Category">
+    - Ensure the category isn't full
+    - Verify Fire can access the category
+    - Check category permissions
+  </Accordion>
+  
+  <Accordion title="Alert Role Not Mentioned">
+    - Make the role mentionable
+    - Give Fire permission to mention the role
+    - Re-set the alert role
+  </Accordion>
+  
+  <Accordion title="Can't Close Tickets">
+    - Use `/ticket-close` inside the ticket channel
+    - Verify you have Manage Channels permission
+    - Check that Fire has permission to delete channels
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Permissions Needed
+
+**For Setup:**
+- Manage Server (user)
+- Manage Channels (bot)
+
+**For Operation:**
+- Manage Channels (bot) - Create/delete ticket channels
+- Send Messages (bot) - Post in tickets
+- Embed Links (bot) - Show ticket embeds
+- Manage Roles (bot) - Set ticket permissions
+
+**For Staff:**
+- Manage Channels or Support role - Manage tickets
+- View Channel - See ticket channels (automatic)
+
+---
+
+## Ticket Workflow Example
+
+1. **Member creates ticket** → Private channel created
+2. **Alert role pinged** → Staff notified
+3. **Staff responds** → Conversation begins
+4. **Issue resolved** → Staff uses `/ticket-close`
+5. **Transcript saved** → Sent to action log
+6. **Channel deleted** → Ticket closed
+
+This keeps your server organized and ensures all support requests are handled efficiently.

@@ -1,0 +1,269 @@
+---
+title: Premium Features Guide
+description: Unlock advanced server management capabilities with Fire Premium
+icon: crown
+---
+
+Fire Premium unlocks powerful features designed for advanced server management and enhanced member experience. This guide covers all premium features and how to maximize their value.
+
+## Role Management Features
+
+### Self-Assignable Ranks
+
+Ranks allow members to self-assign roles, creating interactive role selection systems with buttons or dropdown menus.
+
+<Steps>
+  <Step title="Configure Ranks">
+    Use `/config set utils.ranks` to add roles that members can self-assign.
+  </Step>
+  <Step title="Members Use Ranks">
+    Members run `/rank` to see available roles and join/leave them with interactive buttons or dropdowns.
+  </Step>
+</Steps>
+
+<Tip>
+Ranks automatically adapt based on the number of roles:
+- **1-5 roles**: Interactive buttons with color-coded states (green = join, red = leave)
+- **6-25 roles**: Dropdown menu for multi-selection
+- Emoji support: Add emojis to role names and they'll appear in the interface
+</Tip>
+
+**Use Cases:**
+- Pronoun roles
+- Game/interest roles
+- Notification opt-in roles
+- Color roles
+- Regional roles
+
+### Reaction Roles
+
+Assign roles automatically when members react to messages with specific emojis.
+
+```bash
+/reactionrole @Role
+# React to any message within 60 seconds
+# Confirm the setup
+```
+
+<Warning>
+The role must be:
+- Below Fire's highest role
+- Below your highest role (unless you're the server owner)
+- Not a managed role (bot roles, boosts, etc.)
+</Warning>
+
+**Advanced Workflow:**
+1. Create an announcement or welcome message
+2. Run `/reactionrole @Role`
+3. React to the message with your chosen emoji
+4. Confirm the setup
+5. Members automatically get the role when they react
+
+<Tip>
+You can set multiple reaction roles on the same message with different emojis. Perfect for rule acceptance, team selection, or event RSVPs.
+</Tip>
+
+### Role Persistence
+
+Ensure members keep specific roles even if they leave and rejoin your server.
+
+```bash
+/rolepersist @Member @Role [reason]
+```
+
+**Key Features:**
+- src/commands/Premium/rolepersist.ts:98-99
+- Roles are automatically reapplied on rejoin
+- Add multiple persistent roles per member
+- View member's moderation history after persisting roles
+
+<Tip>
+**Best for:**
+- VIP/Donor roles
+- Special access roles
+- Verified member roles
+- Punishment roles (mute roles for ban evaders)
+</Tip>
+
+### Voice Channel Roles
+
+Automatically assign roles to members when they join specific voice channels.
+
+```bash
+# Set up voice channel role
+/vcrole #voice-channel @Role
+
+# Remove voice channel role binding
+/vcrole #voice-channel
+```
+
+**Behavior:**
+- Role added immediately when member joins the voice channel
+- Role removed immediately when member leaves the voice channel
+- Works with both voice channels and stage channels
+- Existing members in the channel get the role when configured
+
+**Use Cases:**
+- Staff meeting rooms (auto-assign "In Meeting" role)
+- Streaming channels (auto-assign "Live" role)
+- Gaming lobbies (auto-assign game-specific roles)
+- Study/focus rooms (auto-assign "Do Not Disturb" role)
+
+### Invite Roles
+
+Automatically assign roles to members who join through specific invite links.
+
+```bash
+# Bind role to invite
+/inviterole discord.gg/invite @Role
+
+# Remove invite role binding
+/inviterole discord.gg/invite
+```
+
+<Note>
+Only server invites work - you cannot use invites from other servers.
+</Note>
+
+**Strategic Applications:**
+- Partner roles for members from partner servers
+- Event attendee roles
+- Special access for promoted invites
+- Tracking member sources
+
+## Server Identity Features
+
+### Custom Bot Identity
+
+Personalize Fire's appearance in your server with custom nickname, avatar, banner, and bio.
+
+```bash
+/identity update
+```
+
+This opens a modal where you can customize:
+- **Nickname**: Up to 32 characters
+- **Bio**: Up to 190 characters (displayed in server profile)
+- **Avatar**: Upload custom image (JPEG, PNG, or GIF, max 10MB)
+- **Banner**: Upload custom banner (JPEG, PNG, or GIF, max 10MB)
+
+<Tip>
+Custom identity helps Fire blend with your server's branding and theme. Perfect for role-play servers, branded communities, or simply making Fire feel more integrated.
+</Tip>
+
+**Reset Options:**
+```bash
+/identity reset avatar
+/identity reset banner
+/identity reset bio
+```
+
+## URL Redirects (Premium Users)
+
+Create custom short URLs that redirect to longer destinations.
+
+```bash
+/redirect create <code> <url>
+```
+
+**Requirements:**
+- src/commands/Premium/redirect-create.ts:52
+- Code: 2-25 alphanumeric characters
+- URL: Must use HTTPS protocol
+- Cannot redirect to Discord invite links
+
+**Example:**
+```bash
+/redirect create rules https://example.com/server-rules-and-guidelines
+# Creates: inv.wtf/rules → your rules page
+```
+
+<Tip>
+Use redirects for:
+- Shortening application forms
+- Memorable links for rules/guides
+- Tracking click-through on external resources
+- Clean links in announcements
+</Tip>
+
+**Management:**
+```bash
+/redirect view <code>    # View redirect details
+/redirect delete <code>  # Delete a redirect
+```
+
+## Premium Limitations
+
+<AccordionGroup>
+  <Accordion title="Tag Limits">
+    - **Free servers**: 20 tags maximum
+    - **Premium servers**: Unlimited tags
+    - src/commands/Tags/create.ts:74-75
+  </Accordion>
+
+  <Accordion title="Role Hierarchy">
+    All role-related premium features require:
+    - Fire's role to be above the managed role
+    - Your role to be above the managed role (unless server owner)
+    - Role must not be managed by Discord/bots
+  </Accordion>
+
+  <Accordion title="User vs Server Premium">
+    - **Server Premium**: Unlocks features for all server members (ranks, reaction roles, etc.)
+    - **User Premium**: Personal features like redirects
+  </Accordion>
+</AccordionGroup>
+
+## Getting Premium
+
+<Card title="Upgrade to Premium" icon="sparkles" href="https://fire.gaminggeek.dev/premium">
+  Support Fire's development and unlock advanced features for your server.
+</Card>
+
+<Tip>
+**Maximize Premium Value:**
+
+1. **Start with ranks** - Easiest to set up, immediate member engagement
+2. **Add reaction roles** - Create interactive welcome/rules messages
+3. **Configure role persistence** - Protect VIP and donor roles
+4. **Customize Fire's identity** - Make Fire match your server theme
+5. **Use voice channel roles** - Automate member status based on activity
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Reaction roles not working">
+    **Check:**
+    - Fire has `Manage Roles` permission
+    - Fire's role is above the reaction role
+    - The emoji is still on the message
+    - The message hasn't been deleted
+  </Accordion>
+
+  <Accordion title="Ranks not appearing">
+    **Verify:**
+    - Roles are added to `utils.ranks` setting
+    - Roles still exist in the server
+    - Fire can view and manage the roles
+  </Accordion>
+
+  <Accordion title="Identity changes not saving">
+    **Ensure:**
+    - Images are under 10MB
+    - Images are JPEG, PNG, or GIF format
+    - URLs are accessible
+    - You have premium on the server
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Commands" icon="code" href="/guides/custom-commands">
+    Create tags and custom responses
+  </Card>
+  <Card title="Best Practices" icon="list-check" href="/guides/best-practices">
+    Optimize your server management
+  </Card>
+</CardGroup>

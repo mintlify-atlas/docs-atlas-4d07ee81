@@ -1,0 +1,388 @@
+---
+title: Tag Commands
+description: Create and manage custom text snippets
+icon: tag
+---
+
+## Overview
+
+Tags are custom text snippets that members can quickly recall using a command. They're perfect for frequently shared information like rules, FAQs, or server info.
+
+## Using Tags
+
+### View Tag
+
+Display a tag's content.
+
+**Command:** `/tag`
+
+<ParamField path="tag" type="String">
+  Name of the tag to display. Leave empty to list all tags.
+</ParamField>
+
+**Examples:**
+```
+/tag
+/tag tag:rules
+/tag tag:faq
+```
+
+**Aliases:**
+- `/tags` - Same as `/tag`
+- `/dtag` - Display tag and delete the command message
+- `/dtags` - Same as `dtag`
+
+<Note>
+The `dtag` command automatically deletes your command message after displaying the tag, keeping channels clean.
+</Note>
+
+---
+
+### List Tags
+
+View all available tags in the server.
+
+**Command:** `/tag` or `/tags` (without arguments)
+
+Displays:
+- All tag names in the server
+- Tag count
+- Organized in an embed
+
+---
+
+## Managing Tags
+
+### Create Tag
+
+Create a new tag.
+
+**Command:** `/tag-create` or `/create`
+
+<ParamField path="name" type="String" required>
+  Name for the tag (unique identifier)
+</ParamField>
+
+<ParamField path="content" type="String" required>
+  The content to display when the tag is used
+</ParamField>
+
+**Requirements:**
+- Tag names must be unique in the server
+- Tag names cannot conflict with existing subcommands
+- Content can include text, mentions, and emojis
+
+**Example:**
+```
+/tag-create name:rules content:Please read our rules in #rules!
+```
+
+<Note>
+Tags can also include custom embeds. Use `/tag-create` with the embed builder for rich tags.
+</Note>
+
+---
+
+### Edit Tag
+
+Edit an existing tag.
+
+**Command:** `/tag-edit` or `/edit`
+
+<ParamField path="name" type="String" required>
+  Name of the tag to edit
+</ParamField>
+
+<ParamField path="content" type="String">
+  New content for the tag
+</ParamField>
+
+**Permissions:**
+- Tag creator
+- Server administrators
+- Members with Manage Server permission
+
+**Example:**
+```
+/tag-edit name:rules content:Updated rules - please read #rules!
+```
+
+---
+
+### Delete Tag
+
+Delete a tag.
+
+**Command:** `/tag-delete` or `/delete`
+
+<ParamField path="name" type="String" required>
+  Name of the tag to delete
+</ParamField>
+
+**Permissions:**
+- Tag creator
+- Server administrators
+- Members with Manage Server permission
+
+**Example:**
+```
+/tag-delete name:oldtag
+```
+
+<Warning>
+Deleting a tag is permanent and cannot be undone.
+</Warning>
+
+---
+
+### Tag Info
+
+Get information about a tag.
+
+**Command:** `/tag-info` or `/info`
+
+<ParamField path="name" type="String" required>
+  Name of the tag
+</ParamField>
+
+Displays:
+- Tag creator
+- Creation date
+- Last modified date
+- Use count
+- Tag content preview
+
+**Example:**
+```
+/tag-info name:rules
+```
+
+---
+
+### View Raw Tag
+
+View the raw content of a tag (useful for copying).
+
+**Command:** `/tag-raw` or `/raw`
+
+<ParamField path="name" type="String" required>
+  Name of the tag
+</ParamField>
+
+Displays the tag content in a code block for easy copying.
+
+---
+
+## Tag Embeds
+
+Tags can include custom embeds for richer content.
+
+### Create Tag with Embed
+
+**Command:** `/tag-create`
+
+After creating a tag, you can attach embeds:
+
+1. Create the tag with basic content
+2. Use `/embed-create` to create an embed
+3. Link the embed to the tag
+
+**Example Flow:**
+```
+/tag-create name:welcome content:Welcome to our server!
+/embed-create (follow the builder)
+# Link embed to tag through the embed interface
+```
+
+---
+
+## Tag Aliases
+
+Create shortcuts for existing tags.
+
+**Command:** `/tag-alias` or `/alias`
+
+<ParamField path="alias" type="String" required>
+  The new alias name
+</ParamField>
+
+<ParamField path="tag" type="String" required>
+  The existing tag to alias
+</ParamField>
+
+**Example:**
+```
+/tag-alias alias:r tag:rules
+```
+
+Now both `/tag rules` and `/tag r` will show the same content.
+
+---
+
+## Slash Commands
+
+Convert tags to server-specific slash commands.
+
+**Command:** `/tag-slash` or `/slash`
+
+<ParamField path="name" type="String" required>
+  The tag to convert to a slash command
+</ParamField>
+
+<Note>
+This feature requires Fire Premium and has limits based on Discord's slash command quotas.
+</Note>
+
+---
+
+## Tag View
+
+View detailed information and usage statistics for a tag.
+
+**Command:** `/tag-view` or `/view`
+
+<ParamField path="name" type="String" required>
+  Name of the tag
+</ParamField>
+
+---
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Server Rules">
+    Create a `rules` tag that links to your rules channel or lists key rules. Members can quickly access it with `/tag rules`.
+  </Accordion>
+  
+  <Accordion title="FAQ Answers">
+    Create tags for frequently asked questions:
+    - `/tag how-to-verify`
+    - `/tag get-roles`
+    - `/tag appeal`
+  </Accordion>
+  
+  <Accordion title="Server Information">
+    Store important server info:
+    - `/tag socials` - Social media links
+    - `/tag partners` - Partner servers
+    - `/tag staff` - Staff list
+  </Accordion>
+  
+  <Accordion title="Quick Responses">
+    Moderators can create tags for common responses:
+    - `/tag cooldown` - Explain slowmode
+    - `/tag no-nsfw` - NSFW rule reminder
+    - `/tag be-nice` - General behavior reminder
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Clear Names" icon="font">
+    Choose descriptive, easy-to-remember tag names. Avoid special characters or complex strings.
+  </Card>
+  
+  <Card title="Keep It Updated" icon="rotate">
+    Regularly review and update tags to ensure information stays current.
+  </Card>
+  
+  <Card title="Organize by Category" icon="folder">
+    Use prefixes to organize tags:
+    - `faq-*` for FAQ answers
+    - `rule-*` for rule explanations
+    - `info-*` for server info
+  </Card>
+  
+  <Card title="Use Embeds Wisely" icon="image">
+    Rich embeds make tags more visually appealing but can be overwhelming. Use for important tags only.
+  </Card>
+</CardGroup>
+
+---
+
+## Tag Permissions
+
+By default:
+- **Everyone** can view tags
+- **Members with Manage Server** can create tags
+- **Tag creators** can edit/delete their own tags
+- **Administrators** can manage all tags
+
+You can restrict tag creation with `/restrict`.
+
+---
+
+## Tag Limits
+
+| Feature | Free | Premium |
+|---------|------|--------|
+| Tags per server | 50 | 100 |
+| Tag content length | 2000 chars | 4000 chars |
+| Embeds per tag | 1 | 3 |
+| Tag aliases | 3 per tag | 10 per tag |
+| Slash command tags | 0 | 25 |
+
+<Note>
+Upgrade to [Fire Premium](/features/premium) for increased limits.
+</Note>
+
+---
+
+## Advanced Features
+
+### Tag Variables
+
+Tags support the same variables as welcome messages:
+
+```
+{user} - User mention
+{user.name} - Username
+{guild} - Server name
+{channel} - Channel mention
+```
+
+**Example:**
+```
+/tag-create name:welcome content:Welcome {user} to {guild}!
+```
+
+### Tag Embeds
+
+Create rich embedded tags with:
+- Custom colors
+- Images and thumbnails
+- Multiple fields
+- Footers and timestamps
+
+### Tag Analytics
+
+Track tag usage with `/tag-info` to see:
+- How many times a tag has been used
+- When it was last used
+- Who created it
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tag Not Found">
+    - Verify the tag name is spelled correctly
+    - Use `/tags` to list all available tags
+    - Tags are case-sensitive
+  </Accordion>
+  
+  <Accordion title="Can't Create Tag">
+    - Check you have Manage Server permission
+    - Verify you haven't hit the tag limit
+    - Ensure the name doesn't conflict with existing commands
+  </Accordion>
+  
+  <Accordion title="Can't Edit Tag">
+    - Only the tag creator or admins can edit tags
+    - Verify you're using the correct tag name
+  </Accordion>
+</AccordionGroup>

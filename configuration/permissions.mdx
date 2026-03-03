@@ -1,0 +1,306 @@
+---
+title: Permissions
+description: Configure command permissions and channel restrictions for Fire
+---
+
+Fire provides granular control over who can use commands and where they can be used. This guide covers all permission-related configuration options.
+
+## Permission levels
+
+Fire recognizes several permission levels:
+
+<CardGroup cols={2}>
+  <Card title="Administrator" icon="crown">
+    Users with the Administrator permission or server owner
+  </Card>
+  <Card title="Moderator" icon="shield">
+    Users with roles designated as moderators via `/moderators add`
+  </Card>
+  <Card title="Manage Server" icon="gear">
+    Users with the Manage Server permission
+  </Card>
+  <Card title="Regular Users" icon="user">
+    All other server members
+  </Card>
+</CardGroup>
+
+## Setting up moderators
+
+Designate which roles should have moderator permissions for Fire:
+
+<Steps>
+  <Step title="Add moderator roles">
+    ```
+    /moderators add <role>
+    ```
+
+    This grants the role access to all moderation commands like `/ban`, `/kick`, `/mute`, etc.
+  </Step>
+
+  <Step title="View current moderators">
+    ```
+    /moderators list
+    ```
+
+    Displays all roles configured as moderators.
+  </Step>
+
+  <Step title="Remove moderator roles">
+    ```
+    /moderators remove <role>
+    ```
+
+    Revokes moderator permissions from the specified role.
+  </Step>
+</Steps>
+
+<Note>
+Moderator roles automatically have access to moderator-only commands, but still need appropriate Discord permissions (like Ban Members) to execute actions.
+</Note>
+
+## Channel restrictions
+
+Restrict Fire commands to specific channels or categories to keep your server organized.
+
+### Restricting to moderators only
+
+Make specific channels or categories moderator-only for Fire commands:
+
+```
+/restrict moderator [category]
+```
+
+**Behavior:**
+- Without `[category]`: Restricts the current channel to moderators
+- With `[category]`: Restricts all channels in the category to moderators
+
+**Example use cases:**
+- Staff channels where only moderators should use bot commands
+- Moderation log channels
+- Private admin channels
+
+To remove the restriction, run the same command again.
+
+<Warning>
+Channel-level restrictions are overridden by category-level restrictions. If a category is restricted, individual channel restrictions within it are ignored.
+</Warning>
+
+### Restricting to administrators only
+
+Make specific channels or categories admin-only for Fire commands:
+
+```
+/restrict admin [category]
+```
+
+**Behavior:**
+- Without `[category]`: Restricts the current channel to administrators
+- With `[category]`: Restricts all channels in the category to administrators
+
+**Example use cases:**
+- Server configuration channels
+- Owner/admin-only channels
+- Sensitive bot management areas
+
+To remove the restriction, run the same command again.
+
+<Note>
+Administrator restrictions are stricter than moderator restrictions. Users need the Administrator permission or be the server owner.
+</Note>
+
+## Command-specific permissions
+
+Many commands have built-in permission requirements:
+
+<AccordionGroup>
+  <Accordion title="Moderation commands">
+    Commands like `/ban`, `/kick`, `/mute` require:
+    - User has a moderator role (set via `/moderators add`), OR
+    - User has the corresponding Discord permission (Ban Members, Kick Members, etc.)
+
+    **Examples:**
+    - `/ban` - Requires Ban Members permission or moderator role
+    - `/kick` - Requires Kick Members permission or moderator role
+    - `/mute` - Requires moderator role
+    - `/lockdown` - Requires Manage Channels permission or moderator role
+  </Accordion>
+
+  <Accordion title="Configuration commands">
+    Most configuration commands require **Manage Server** permission:
+    - `/logging toggle`
+    - `/logging configure`
+    - `/linkfilter toggle`
+    - `/linkfilter exclude`
+    - `/language` (for server-wide changes)
+    - `/autorole`
+    - `/blacklist`
+    - `/moderators add/remove`
+
+    This ensures only trusted users can modify server settings.
+  </Accordion>
+
+  <Accordion title="Administrator commands">
+    Some commands require **Administrator** permission:
+    - `/restrict admin`
+
+    These commands have significant impact on server functionality.
+  </Accordion>
+
+  <Accordion title="User commands">
+    Commands available to all users:
+    - `/help`
+    - `/userinfo`
+    - `/avatar`
+    - `/serverinfo`
+    - Utility commands
+
+    These commands are safe for general use.
+  </Accordion>
+</AccordionGroup>
+
+## Permission hierarchy
+
+Fire follows this permission hierarchy (highest to lowest):
+
+```
+1. Server Owner
+2. Administrator permission
+3. Manage Server permission
+4. Moderator roles
+5. Command-specific Discord permissions
+6. Regular users
+```
+
+<Note>
+Channel and category restrictions apply **after** checking user permissions. Even moderators cannot use commands in admin-restricted channels unless they're also administrators.
+</Note>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Separate moderator tiers" icon="layer-group">
+    Create different moderator roles for different trust levels:
+    - Trial moderators (limited commands)
+    - Full moderators (all mod commands)
+    - Senior moderators (config access)
+  </Card>
+
+  <Card title="Restrict configuration channels" icon="lock">
+    Use `/restrict admin` on channels where you configure Fire to prevent accidental changes.
+  </Card>
+
+  <Card title="Test restrictions" icon="vial">
+    After setting up restrictions, test with an alt account to verify they work as expected.
+  </Card>
+
+  <Card title="Document your setup" icon="book">
+    Keep a record of which channels are restricted and which roles have moderator permissions.
+  </Card>
+</CardGroup>
+
+## Examples
+
+### Example 1: Basic moderator setup
+
+<Steps>
+  <Step title="Create moderator role">
+    Create a role called "Moderator" in Server Settings > Roles
+  </Step>
+
+  <Step title="Add to Fire">
+    ```
+    /moderators add @Moderator
+    ```
+  </Step>
+
+  <Step title="Grant Discord permissions">
+    Give the Moderator role these Discord permissions:
+    - Manage Messages
+    - Kick Members
+    - Ban Members
+    - Manage Nicknames
+  </Step>
+</Steps>
+
+### Example 2: Staff channel restrictions
+
+<Steps>
+  <Step title="Create staff category">
+    Create a category called "Staff" for all staff channels
+  </Step>
+
+  <Step title="Restrict to moderators">
+    In any channel within the staff category:
+    ```
+    /restrict moderator <Staff Category>
+    ```
+  </Step>
+
+  <Step title="Verify">
+    Regular users can no longer use Fire commands in any staff channel
+  </Step>
+</Steps>
+
+### Example 3: Admin configuration channel
+
+<Steps>
+  <Step title="Create admin channel">
+    Create a channel called #bot-config
+  </Step>
+
+  <Step title="Restrict to admins">
+    ```
+    /restrict admin
+    ```
+  </Step>
+
+  <Step title="Configure Fire">
+    Use this channel to safely configure Fire without interference
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Moderators can't use commands">
+    **Possible causes:**
+    1. Role not added via `/moderators add`
+    2. Channel is admin-restricted
+    3. User lacks required Discord permissions
+    4. Fire's role is lower than the moderator role
+
+    **Solution:** Verify moderator setup and check channel restrictions.
+  </Accordion>
+
+  <Accordion title="Can't remove channel restriction">
+    **Cause:** The channel might be covered by a category-level restriction.
+
+    **Solution:** Remove the category restriction first, then manage individual channels.
+  </Accordion>
+
+  <Accordion title="Commands work in wrong channels">
+    **Cause:** No channel restrictions are set.
+
+    **Solution:** Use `/restrict moderator` or `/restrict admin` to control where commands can be used.
+  </Accordion>
+
+  <Accordion title="Everyone can use mod commands">
+    **Possible causes:**
+    1. @everyone role has Discord permissions (Ban Members, etc.)
+    2. Channel restrictions aren't set
+    3. Users have Manage Server or Administrator permission
+
+    **Solution:** Review Discord role permissions and consider using channel restrictions.
+  </Accordion>
+</AccordionGroup>
+
+## Related configuration
+
+<CardGroup cols={2}>
+  <Card title="Server setup" icon="server" href="/configuration/server-setup">
+    Initial server configuration
+  </Card>
+  <Card title="Auto-moderation" icon="robot" href="/configuration/auto-moderation">
+    Automated moderation features
+  </Card>
+</CardGroup>

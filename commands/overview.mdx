@@ -1,0 +1,134 @@
+---
+title: Command Overview
+description: Overview of Fire's command system and categories
+---
+
+## Command System
+
+Fire uses a comprehensive command system that supports both slash commands and traditional prefix commands. Most commands are now slash-only for better Discord integration.
+
+### Using Commands
+
+**Slash Commands** (Recommended)
+Type `/` in any channel to see available commands. Discord will show autocomplete suggestions with descriptions.
+
+Example:
+```
+/ban @user reason: Breaking rules
+```
+
+**Prefix Commands** (Legacy)
+Some commands still support the traditional prefix format:
+```
+$help
+```
+
+### Command Categories
+
+Fire's commands are organized into the following categories:
+
+<CardGroup cols={2}>
+  <Card title="Moderation" icon="shield" href="/commands/moderation">
+    Manage members and keep your server safe
+  </Card>
+  <Card title="Utilities" icon="wrench" href="/commands/utilities">
+    Useful tools and information commands
+  </Card>
+  <Card title="Fun" icon="game-controller" href="/commands/fun">
+    Entertainment and interactive commands
+  </Card>
+  <Card title="Configuration" icon="cog" href="/commands/configuration">
+    Server settings and customization
+  </Card>
+  <Card title="Tags" icon="tag" href="/commands/tags">
+    Create and manage custom text snippets
+  </Card>
+  <Card title="Tickets" icon="ticket" href="/commands/tickets">
+    Support ticket system setup
+  </Card>
+  <Card title="Premium" icon="star" href="/commands/premium">
+    Premium-only features and commands
+  </Card>
+</CardGroup>
+
+## Command Permissions
+
+### User Permissions
+Many commands require specific Discord permissions. For example:
+- Moderation commands require permissions like Ban Members, Kick Members, etc.
+- Configuration commands typically require Manage Server
+- Some commands are moderator-only (based on Fire's moderator system)
+
+### Bot Permissions
+Fire needs appropriate permissions to execute commands:
+- Moderation commands need corresponding mod permissions
+- Embed commands need Embed Links permission
+- Message management commands need Manage Messages
+
+<Note>
+The bot will inform you if it lacks required permissions to execute a command.
+</Note>
+
+## Command Arguments
+
+### Required Arguments
+Shown in command syntax without brackets or with `<angle brackets>`:
+```
+/ban user: @member reason: Breaking rules
+```
+
+### Optional Arguments
+Shown with `[square brackets]`:
+```
+/avatar [user]
+```
+
+### Argument Types
+
+Commands accept various argument types:
+- **User/Member**: Discord users or server members
+- **Role**: Server roles
+- **Channel**: Text channels, categories, etc.
+- **String**: Text input
+- **Number**: Numeric values
+- **Time**: Duration or timestamp (e.g., "2h", "30m")
+
+## Getting Help
+
+### Help Command
+Use `/help` to view all available commands:
+```
+/help
+```
+
+View help for a specific command:
+```
+/help command: ban
+```
+
+### Command Autocomplete
+Many commands support autocomplete for arguments. Start typing and Discord will suggest valid options.
+
+## Error Messages
+
+Fire provides clear error messages when:
+- Required arguments are missing
+- You lack necessary permissions
+- The bot lacks required permissions
+- Invalid arguments are provided
+- Rate limits are exceeded
+
+<Warning>
+Moderation commands are irreversible. Always double-check before executing ban, kick, or purge commands.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Moderation Commands" icon="shield" href="/commands/moderation">
+    Learn about ban, kick, mute, and other mod tools
+  </Card>
+  <Card title="Configuration" icon="cog" href="/commands/configuration">
+    Set up your server's features and settings
+  </Card>
+</CardGroup>

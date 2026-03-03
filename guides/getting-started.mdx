@@ -1,0 +1,229 @@
+---
+title: Getting Started with Fire
+description: Complete guide to setting up Fire Discord Bot in your server
+---
+
+Welcome to Fire! This guide will walk you through inviting Fire to your server and getting started with your first commands.
+
+## Before You Begin
+
+Make sure you have the following permissions in your Discord server:
+
+<CardGroup cols={2}>
+  <Card title="Server Permissions" icon="shield-check">
+    **Manage Server** permission is required to invite bots and configure Fire
+  </Card>
+  <Card title="Administrator Access" icon="crown">
+    Recommended for full setup, though specific permissions can be granted instead
+  </Card>
+</CardGroup>
+
+## Inviting Fire to Your Server
+
+<Steps>
+  <Step title="Generate Invite Link">
+    Visit the [Fire website](https://inv.wtf/fire) or use the `/invite` command in any server where Fire is already present to get the official invite link.
+    
+    <Warning>
+      Only use the official invite link from `inv.wtf/fire` to avoid scam bots. Fire will never ask for your password or personal information.
+    </Warning>
+  </Step>
+
+  <Step title="Select Your Server">
+    Click the invite link and select the server you want to add Fire to from the dropdown menu. You must have **Manage Server** permissions in that server.
+  </Step>
+
+  <Step title="Review Permissions">
+    Fire will request the following essential permissions:
+    
+    - **Manage Channels** - Create and manage ticket channels
+    - **Manage Roles** - Apply mute roles and manage permissions
+    - **Kick Members** - Execute kick moderation actions
+    - **Ban Members** - Execute ban moderation actions
+    - **Moderate Members** - Timeout/mute members
+    - **Manage Messages** - Delete messages and clean up channels
+    - **Send Messages** - Respond to commands
+    - **Embed Links** - Send rich embeds for command responses
+    - **Read Message History** - Required for moderation features
+    
+    <Note>
+      You can customize these permissions later, but some features won't work without their required permissions.
+    </Note>
+  </Step>
+
+  <Step title="Authorize Fire">
+    Click **Authorize** to complete the invitation process. Complete the CAPTCHA verification if prompted.
+  </Step>
+</Steps>
+
+## First Steps After Inviting
+
+<Steps>
+  <Step title="Verify Fire Is Online">
+    Check that Fire appears in your server's member list with an online status. If Fire is offline, check the [status page](https://status.gaminggeek.dev) or join the [support server](https://inv.wtf/fire).
+  </Step>
+
+  <Step title="Test Basic Commands">
+    Fire uses Discord's slash commands. Type `/` in any channel to see available commands.
+    
+    Try these basic commands:
+    ```bash
+    /help
+    /ping
+    /stats
+    ```
+  </Step>
+
+  <Step title="Set Your Language (Optional)">
+    Fire supports multiple languages. Change the language for your server:
+    
+    ```bash
+    /language [language]
+    ```
+    
+    Available languages include English, Spanish, German, French, and more.
+  </Step>
+
+  <Step title="Configure Moderators">
+    Set up who can use moderation commands. By default, members with **Manage Server** or specific Discord permissions can use moderation features.
+    
+    Add moderator roles or members:
+    ```bash
+    /moderators add role:[role]
+    /moderators add member:[member]
+    ```
+    
+    View current moderators:
+    ```bash
+    /moderators list
+    ```
+    
+    <Note>
+      Members with **Manage Server**, **Ban Members**, **Kick Members**, or **Moderate Members** permissions are automatically considered moderators.
+    </Note>
+  </Step>
+</Steps>
+
+## Essential Commands Overview
+
+<CardGroup cols={2}>
+  <Card title="Moderation" icon="gavel" href="/commands/moderation">
+    - `/ban` - Ban members
+    - `/kick` - Kick members
+    - `/mute` - Timeout members
+    - `/warn` - Warn members
+  </Card>
+  
+  <Card title="Tickets" icon="ticket" href="/guides/ticket-system">
+    - `/ticket enable` - Enable ticket system
+    - `/new` - Create a support ticket
+    - `/close` - Close tickets
+  </Card>
+  
+  <Card title="Utilities" icon="wrench" href="/commands/utilities">
+    - `/help` - View all commands
+    - `/prefix` - Change command prefix
+    - `/stats` - View bot statistics
+  </Card>
+  
+  <Card title="Configuration" icon="gear" href="/configuration/server-setup">
+    - `/logging` - Configure logging
+    - `/language` - Change language
+    - `/command` - Enable/disable commands
+  </Card>
+</CardGroup>
+
+## Configuring Permissions
+
+Fire respects Discord's permission hierarchy. Here's how Fire determines who can use commands:
+
+<Steps>
+  <Step title="Role Position Hierarchy">
+    Fire can only moderate members with roles **lower** than Fire's highest role. Move Fire's role higher in your server's role list:
+    
+    1. Go to **Server Settings** → **Roles**
+    2. Drag Fire's role above roles you want Fire to moderate
+    3. Keep Fire's role below admin/moderator roles for safety
+  </Step>
+
+  <Step title="Channel Permissions">
+    Ensure Fire can see and interact with channels:
+    
+    - **View Channel** - Required in all channels Fire should work in
+    - **Send Messages** - Required to respond to commands
+    - **Manage Messages** - Required for moderation features
+    - **Embed Links** - Required for rich responses
+  </Step>
+
+  <Step title="Configure Command Permissions (Optional)">
+    Use Discord's built-in command permissions to restrict who can use specific slash commands:
+    
+    1. Go to **Server Settings** → **Integrations**
+    2. Click on **Fire**
+    3. Configure command permissions for roles/channels
+  </Step>
+</Steps>
+
+<Warning>
+  Fire cannot moderate server owners or members with roles higher than or equal to Fire's role. This is a Discord API limitation.
+</Warning>
+
+## Next Steps
+
+Now that Fire is set up, you can configure advanced features:
+
+<CardGroup cols={3}>
+  <Card title="Moderation Setup" icon="shield" href="/guides/moderation-setup">
+    Set up logging, auto-moderation, and moderation workflows
+  </Card>
+  
+  <Card title="Ticket System" icon="ticket" href="/guides/ticket-system">
+    Configure a full support ticket system for your server
+  </Card>
+  
+  <Card title="Premium Features" icon="crown" href="/guides/premium-features">
+    Unlock advanced features with Fire Premium
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Fire isn't responding to commands">
+    1. Verify Fire is online (green status in member list)
+    2. Check that Fire has **Send Messages** and **Use Slash Commands** permissions
+    3. Try using slash commands by typing `/` instead of a prefix
+    4. Check the [status page](https://status.gaminggeek.dev) for outages
+  </Accordion>
+
+  <Accordion title="Fire can't moderate certain members">
+    1. Ensure Fire's role is **higher** than the member's highest role
+    2. Fire cannot moderate server owners
+    3. Fire needs **Ban Members**, **Kick Members**, or **Moderate Members** permissions
+    4. The member executing the command must also be able to moderate the target
+  </Accordion>
+
+  <Accordion title="Commands return permission errors">
+    1. Check that Fire has the required permissions for that command
+    2. Verify you have moderator permissions (or are in the moderators list)
+    3. Use `/moderators list` to see who can use moderation commands
+  </Accordion>
+
+  <Accordion title="Fire left my server automatically">
+    Fire may leave servers that:
+    - Violate Discord's Terms of Service
+    - Are inactive for extended periods
+    - Have banned Fire's developers
+    
+    If you believe this was an error, join the [support server](https://inv.wtf/fire).
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+Need additional assistance?
+
+- **Support Server**: Join [inv.wtf/fire](https://inv.wtf/fire) for community support
+- **Documentation**: Browse the [full documentation](/introduction)
+- **Command Help**: Use `/help [command]` for specific command information
+- **Status Updates**: Check [status.gaminggeek.dev](https://status.gaminggeek.dev) for service status

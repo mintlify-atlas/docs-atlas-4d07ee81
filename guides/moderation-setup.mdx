@@ -1,0 +1,479 @@
+---
+title: Moderation Setup
+description: Configure comprehensive moderation workflows with Fire's powerful moderation tools
+---
+
+Set up Fire's moderation system to keep your Discord server safe and organized. This guide covers moderation commands, logging, auto-moderation, and best practices.
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Fire Invited" icon="check">
+    Fire must be invited to your server with proper permissions
+  </Card>
+  <Card title="Permissions" icon="shield">
+    You need **Manage Server** permission and Fire needs moderation permissions
+  </Card>
+</CardGroup>
+
+<Note>
+  If you haven't invited Fire yet, check out the [Getting Started guide](/guides/getting-started).
+</Note>
+
+## Setting Up Moderators
+
+<Steps>
+  <Step title="Understand Moderator Permissions">
+    Fire considers users as moderators if they have:
+    - **Manage Server** permission
+    - **Ban Members** permission
+    - **Kick Members** permission  
+    - **Moderate Members** permission
+    - Are explicitly added to the moderators list
+    
+    <Warning>
+      Server owners can always use moderation commands, regardless of moderator configuration.
+    </Warning>
+  </Step>
+
+  <Step title="Add Moderator Roles">
+    Add specific roles that should have moderation access:
+    
+    ```bash
+    /moderators add role:@Moderators
+    /moderators add role:@Staff
+    ```
+    
+    This allows members with these roles to use moderation commands even without Discord's built-in moderation permissions.
+  </Step>
+
+  <Step title="Add Individual Moderators">
+    Add specific members as moderators:
+    
+    ```bash
+    /moderators add member:@Username
+    ```
+  </Step>
+
+  <Step title="View Current Moderators">
+    Check who has moderator permissions:
+    
+    ```bash
+    /moderators list
+    ```
+  </Step>
+
+  <Step title="Remove Moderators (If Needed)">
+    Remove roles or members from the moderators list:
+    
+    ```bash
+    /moderators remove role:@Former-Staff
+    /moderators remove member:@Username
+    ```
+  </Step>
+</Steps>
+
+## Configuring Moderation Logging
+
+Keep track of all moderation actions with Fire's comprehensive logging system.
+
+<Steps>
+  <Step title="Create a Logging Channel">
+    Create a dedicated channel for moderation logs (e.g., `#mod-logs` or `#audit-log`). Make sure:
+    
+    - Fire can **View Channel**
+    - Fire can **Send Messages** 
+    - Fire can **Embed Links**
+    - Only moderators can view this channel
+  </Step>
+
+  <Step title="Enable Action Logging">
+    Configure logging for moderation actions:
+    
+    ```bash
+    /logging configure action:#mod-logs
+    ```
+    
+    This logs all moderation actions including bans, kicks, mutes, warns, and more.
+  </Step>
+
+  <Step title="Enable Additional Logging (Optional)">
+    Fire supports additional logging types:
+    
+    ```bash
+    # Log message deletions and edits
+    /logging configure messages:#message-logs
+    
+    # Log member joins/leaves
+    /logging configure members:#member-logs
+    
+    # Log channel/role changes
+    /logging configure moderation:#audit-logs
+    ```
+    
+    <Note>
+      You can use the same channel for all logs or separate channels for organization.
+    </Note>
+  </Step>
+
+  <Step title="Toggle Logging On/Off">
+    Disable or re-enable specific logging types:
+    
+    ```bash
+    /logging toggle [type]
+    ```
+  </Step>
+</Steps>
+
+## Essential Moderation Commands
+
+Here's how to use Fire's core moderation commands effectively.
+
+### Warning Members
+
+Warn members for rule violations without taking punitive action:
+
+```bash
+/warn user:@Member reason:Spam in general chat
+```
+
+<Note>
+  Warnings are logged and can be viewed with `/warnings view`. This helps track repeat offenders.
+</Note>
+
+View a member's warnings:
+```bash
+/warnings view user:@Member
+```
+
+Clear warnings when appropriate:
+```bash
+/warnings clear user:@Member
+```
+
+### Muting Members
+
+Temporarily mute members using Discord's timeout feature:
+
+```bash
+# Mute for a specific duration
+/mute user:@Member time:1h reason:Arguing with staff
+/mute user:@Member time:30m reason:Spam
+/mute user:@Member time:1d reason:Harassment
+```
+
+<Info>
+  Fire uses Discord's native timeout feature which prevents members from sending messages, reacting, speaking in voice, or joining stages.
+</Info>
+
+Unmute a member early:
+```bash
+/unmute user:@Member reason:Appealed timeout
+```
+
+### Kicking Members
+
+Remove members from the server (they can rejoin with an invite):
+
+```bash
+/kick user:@Member reason:Spamming invite links
+```
+
+### Banning Members
+
+Permanently ban members from the server:
+
+```bash
+# Ban with message deletion
+/ban user:@Member reason:Raid participation delete:1 day
+
+# Temporary ban
+/ban user:@Member time:7d reason:Repeated rule violations
+
+# Ban user not in server (by ID)
+/ban user:123456789012345678 reason:Alt account of banned user
+```
+
+<Warning>
+  Use the `delete` parameter carefully. This deletes the user's messages from the past N days (up to 7 days).
+</Warning>
+
+Unban a member:
+```bash
+/unban user:@Member reason:Ban appeal accepted
+```
+
+### Viewing Moderation Logs
+
+Check a member's moderation history:
+
+```bash
+# View all actions taken against a member
+/modlogs view user:@Member
+
+# View moderation statistics
+/modlogs stats
+
+# View actions by a specific moderator  
+/modlog mod-stats moderator:@Moderator
+```
+
+## Advanced Moderation Features
+
+<CardGroup cols={2}>
+  <Card title="Auto Decancer" icon="user-slash">
+    Automatically rename members with hard-to-read names:
+    
+    ```bash
+    /autodecancer enable
+    /badname [name]
+    ```
+  </Card>
+  
+  <Card title="Auto Dehoist" icon="arrow-down-1-9">
+    Prevent members from using special characters to appear at the top of the member list:
+    
+    ```bash
+    /autodehoist enable
+    ```
+  </Card>
+  
+  <Card title="Auto Role" icon="user-plus">
+    Automatically assign roles to new members:
+    
+    ```bash
+    /autorole role:@Member
+    ```
+  </Card>
+  
+  <Card title="Link Filter" icon="link-slash">
+    Block or filter links in specific channels:
+    
+    ```bash
+    /linkfilter toggle
+    /linkfilter exclude channel:#media
+    ```
+  </Card>
+</CardGroup>
+
+## Setting Up Auto-Moderation
+
+Fire includes auto-moderation features to help you maintain server quality automatically.
+
+<Steps>
+  <Step title="Configure Anti-Spam (Premium)">
+    Enable anti-spam protection to detect and punish spam automatically:
+    
+    ```bash
+    /anti spam enable
+    ```
+    
+    <Note>
+      Some auto-moderation features require [Fire Premium](/guides/premium-features).
+    </Note>
+  </Step>
+
+  <Step title="Set Up Link Filtering">
+    Control where links can be posted:
+    
+    ```bash
+    # Enable link filter
+    /linkfilter toggle
+    
+    # Exclude specific channels
+    /linkfilter exclude channel:#media-sharing
+    /linkfilter exclude channel:#links
+    
+    # View excluded channels
+    /linkfilter list-exclude
+    ```
+  </Step>
+
+  <Step title="Configure Auto-Decancer">
+    Automatically fix problematic usernames:
+    
+    ```bash
+    /autodecancer enable
+    ```
+    
+    Set what to rename users to:
+    ```bash
+    /badname Moderated Nickname
+    ```
+  </Step>
+
+  <Step title="Enable Auto-Dehoist">
+    Prevent members from hoisting themselves to the top of the member list:
+    
+    ```bash
+    /autodehoist enable
+    ```
+  </Step>
+</Steps>
+
+## Moderation Workflow Best Practices
+
+<Steps>
+  <Step title="Establish Clear Rules">
+    Before moderating, ensure your server has:
+    - Written rules in a #rules channel
+    - Clear consequences for violations
+    - A consistent enforcement policy
+  </Step>
+
+  <Step title="Use the Escalation Ladder">
+    Follow a consistent escalation path:
+    
+    1. **Verbal Warning** - DM or public reminder
+    2. **Formal Warning** - `/warn` command
+    3. **Temporary Mute** - `/mute` for increasing durations  
+    4. **Kick** - `/kick` for serious violations
+    5. **Temporary Ban** - `/ban` with time limit
+    6. **Permanent Ban** - `/ban` for extreme cases
+    
+    <Note>
+      Adjust this ladder based on violation severity. Some actions (raids, illegal content) warrant immediate bans.
+    </Note>
+  </Step>
+
+  <Step title="Always Provide Reasons">
+    Include detailed reasons in all moderation actions:
+    
+    ✅ **Good**: `/ban user:@User reason:Posted phishing links in #general (3rd offense)`
+    
+    ❌ **Bad**: `/ban user:@User reason:bad`
+    
+    Good reasons help with:
+    - Appeal reviews
+    - Moderator accountability
+    - Pattern recognition
+  </Step>
+
+  <Step title="Review Mod Logs Regularly">
+    Use `/modlogs stats` to:
+    - Identify problem users
+    - Monitor moderator activity
+    - Spot patterns requiring rule updates
+  </Step>
+
+  <Step title="Set Up a Moderator Channel">
+    Create a private moderator-only channel to:
+    - Discuss moderation decisions
+    - Share context on users
+    - Coordinate during raids or incidents
+  </Step>
+</Steps>
+
+## Channel Lockdown
+
+Quickly lock channels during raids or emergencies:
+
+```bash
+# Lock the current channel
+/lockdown
+
+# Lock with a reason
+/lockdown reason:Raid in progress
+```
+
+Fire will prevent `@everyone` from sending messages. Use the command again to unlock.
+
+<Warning>
+  Lockdown affects all non-moderators. Make sure moderators can still communicate.
+</Warning>
+
+## Slowmode Management
+
+Control message frequency in busy channels:
+
+```bash
+# Set 5 second slowmode
+/slowmode duration:5s
+
+# Set 30 second slowmode
+/slowmode duration:30s
+
+# Disable slowmode
+/slowmode duration:0s
+```
+
+## Purging Messages
+
+Bulk delete messages to clean up channels:
+
+```bash
+# Delete last 50 messages
+/purge amount:50
+
+# Delete messages from specific user
+/purge user:@Member amount:20
+
+# Delete bot messages  
+/purge bots:true amount:100
+```
+
+<Warning>
+  Messages older than 14 days cannot be bulk deleted due to Discord API limitations.
+</Warning>
+
+## Handling Appeals
+
+Set up an appeal system for banned users:
+
+```bash
+# Configure appeal link
+/appeals [URL to appeal form]
+```
+
+When users are banned, they'll receive the appeal link via DM (if their DMs are open).
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Fire can't ban/kick certain members">
+    1. Fire's role must be **higher** than the target member's highest role
+    2. Move Fire's role higher in **Server Settings** → **Roles**
+    3. Fire cannot moderate the server owner
+    4. The moderator using the command must also be able to moderate the target
+  </Accordion>
+
+  <Accordion title="Moderation actions aren't being logged">
+    1. Verify Fire can see and send messages in the logging channel
+    2. Check that Fire has **Embed Links** permission
+    3. Confirm logging is enabled: `/logging toggle action`
+    4. Verify the correct channel is configured: `/logging configure action:#channel`
+  </Accordion>
+
+  <Accordion title="Mute command isn't working">
+    1. Fire uses Discord's native timeout feature
+    2. Fire needs **Moderate Members** permission
+    3. Fire's role must be higher than the member being muted
+    4. Members cannot be timed out for longer than 28 days (Discord limitation)
+  </Accordion>
+
+  <Accordion title="Auto-moderation isn't triggering">
+    1. Some features require Fire Premium
+    2. Check that features are enabled (e.g., `/autodecancer enable`)
+    3. Moderators and users with higher roles may be exempt from auto-moderation
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Ticket System" icon="ticket" href="/guides/ticket-system">
+    Set up a support ticket system for member assistance
+  </Card>
+  
+  <Card title="Premium Features" icon="crown" href="/guides/premium-features">
+    Unlock advanced auto-moderation with Fire Premium
+  </Card>
+  
+  <Card title="Configuration Guide" icon="gear" href="/configuration/server-setup">
+    Configure advanced server settings
+  </Card>
+  
+  <Card title="Best Practices" icon="book" href="/guides/best-practices">
+    Learn moderation best practices for Discord servers
+  </Card>
+</CardGroup>
