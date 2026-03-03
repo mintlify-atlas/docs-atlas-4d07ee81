@@ -348,6 +348,77 @@ Get debug information (superuser only).
 
 ---
 
+## Bot Information
+
+### Ping
+
+Check Fire's response time and latency.
+
+**Command:** `/ping`
+
+Displays:
+- REST API ping (response time)
+- WebSocket heartbeat ping
+- Current shard and cluster information
+
+**Usage:**
+```
+/ping
+```
+
+---
+
+### Stats
+
+View detailed statistics about Fire's performance and usage.
+
+**Command:** `/stats`
+
+**Parameters:**
+- `cluster` (optional) - View stats for a specific cluster
+
+Shows:
+- Server count across all clusters
+- User count
+- Memory usage
+- Uptime
+- Discord.js version
+- Node.js version
+
+**Usage:**
+```
+/stats
+/stats cluster:0
+```
+
+---
+
+### Invite
+
+Get Fire's invite link to add the bot to your server.
+
+**Command:** `/invite`
+
+Provides links to:
+- Discord App Directory page
+- Support server
+
+---
+
+### Support
+
+Get a link to Fire's support server.
+
+**Command:** `/support`
+
+Join for:
+- Help with Fire
+- Feature requests
+- Bug reports
+- Community discussion
+
+---
+
 ## Status Commands
 
 ### Discord Status
@@ -378,6 +449,65 @@ Sync slowmode settings across channels.
 **Command:** `/slowmode-sync`
 
 Useful for maintaining consistent slowmode across multiple channels.
+
+---
+
+## Starboard
+
+Highlight your server's best messages by having members star them. When a message reaches a certain number of stars, it appears in a dedicated starboard channel.
+
+### Starboard Channel
+
+Set up or remove the starboard channel.
+
+**Command:** `/starboard-channel`
+
+**Parameters:**
+- `channel` (optional) - The channel where starred messages will appear. Omit to disable starboard.
+
+**Usage:**
+```
+/starboard-channel channel:#starboard
+/starboard-channel (to disable)
+```
+
+---
+
+### Starboard Minimum
+
+Set the minimum number of stars required for a message to appear on the starboard.
+
+**Command:** `/starboard-minimum`
+
+**Parameters:**
+- `minimum` (optional) - Number of stars required (minimum: 2, default: 5)
+
+**Usage:**
+```
+/starboard-minimum minimum:3
+/starboard-minimum (to reset to default 5)
+```
+
+---
+
+### Starboard Emoji
+
+Set a custom emoji for starring messages (default is ⭐).
+
+**Command:** `/starboard-emoji`
+
+**Parameters:**
+- `emoji` - The emoji to use for starring
+
+---
+
+### Starboard Limit Channels
+
+Limit which channels can have messages appear on the starboard.
+
+**Command:** `/starboard-limit-channels`
+
+Configure which channels are eligible for the starboard feature.
 
 ---
 
