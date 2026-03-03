@@ -1,0 +1,128 @@
+{
+  "projectType": "saas",
+  "projectName": "Fire Discord Bot",
+  "projectDescription": "A comprehensive Discord bot with moderation, utilities, entertainment features, and premium functionality for server management.",
+  "theme": "almond",
+  "primaryColor": "#5865F2",
+  "lightColor": "#7289DA",
+  "darkColor": "#404EED",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "inviting-fire"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/overview",
+              "features/moderation",
+              "features/utilities",
+              "features/fun",
+              "features/tags",
+              "features/tickets",
+              "features/premium"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/server-setup",
+              "configuration/permissions",
+              "configuration/auto-moderation"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Commands",
+        "groups": [
+          {
+            "group": "Command Categories",
+            "pages": [
+              "commands/overview",
+              "commands/moderation",
+              "commands/utilities",
+              "commands/fun",
+              "commands/configuration",
+              "commands/tags",
+              "commands/tickets",
+              "commands/premium"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Setup Guides",
+            "pages": [
+              "guides/getting-started",
+              "guides/moderation-setup",
+              "guides/ticket-system"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "guides/premium-features",
+              "guides/custom-commands",
+              "guides/best-practices"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Contributing",
+            "pages": [
+              "development/overview",
+              "development/architecture",
+              "development/setup",
+              "development/commands",
+              "development/modules"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Advanced moderation tools with auto-moderation",
+    "Utility commands for server management",
+    "Entertainment and fun commands",
+    "Custom tags and ticket system",
+    "Premium features and role management",
+    "Slash command support",
+    "Multi-language support",
+    "Minecraft server utilities"
+  ],
+  "publicApiSurface": [
+    "/help - Get help with Fire commands",
+    "/ban - Ban users from the server",
+    "/kick - Kick users from the server",
+    "/warn - Warn users",
+    "/purge - Bulk delete messages",
+    "/lockdown - Lock channels",
+    "/quote - Quote messages",
+    "/remind - Set reminders",
+    "/tag - Manage custom tags",
+    "/ticket - Manage support tickets",
+    "/avatar - View user avatars",
+    "/serverinfo - View server information",
+    "/userinfo - View user information",
+    "/role - Manage roles",
+    "/embed - Create embeds",
+    "/minecraft - Minecraft utilities"
+  ]
+}
